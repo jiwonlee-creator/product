@@ -474,7 +474,6 @@ td.n {
   box-shadow: 0 8px 20px rgba(15, 23, 42, 0.18);
   font-size: 12px;
   line-height: 1.4;
-  will-change: transform;
 }
 .pn-tip.bulk-wait { border-top-color: #16a34a; }
 .pn-tip.bulk-clean { border-top-color: #0891b2; }
@@ -1209,7 +1208,7 @@ function buildIndex(values) {
 
     const isOutPlan = gubunClean.indexOf('외주입고계획') !== -1 || gubunClean.indexOf('외주입고') !== -1;
     const isOutWip = !isOutPlan && gubunClean === '외주재공';
-    const isErp = !isOutWip && !isOutPlan && gubunClean.indexOf('재공') !== -1;
+    const isErp = !isOutWip && !isOutPlan && gubunClean.indexOf('재공') !== -1 && !/total|수량/i.test(gubunClean);
 
     let s = custStr ? (custStr + '\t') : '';
     const lim = Math.min(r.length, maxTextCol);
@@ -1893,7 +1892,7 @@ function positionTip(e) {
   let y = lastMouse.y + pad;
   if (x + rect.width > window.innerWidth - 8) x = Math.max(8, lastMouse.x - rect.width - pad);
   if (y + rect.height > window.innerHeight - 8) y = Math.max(8, lastMouse.y - rect.height - pad);
-  tipEl.style.transform = `translate3d(${x}px, ${y}px, 0)`;
+  tipEl.style.transform = `translate3d(${Math.round(x)}px, ${Math.round(y)}px, 0)`;
 }
 
 function showPartTip(pn, e) {
@@ -2108,7 +2107,7 @@ function placePopAt(x0, y0) {
   let x = x0 + 12, y = y0 + 12;
   if (x + rect.width > window.innerWidth - 8) x = Math.max(8, x0 - rect.width - 12);
   if (y + rect.height > window.innerHeight - 8) y = Math.max(8, y0 - rect.height - 12);
-  erpPopEl.style.transform = 'translate3d(' + x + 'px,' + y + 'px,0)';
+  erpPopEl.style.transform = 'translate3d(' + Math.round(x) + 'px,' + Math.round(y) + 'px,0)';
 }
 
 function showOutPlanPop(item, dateKey, e) {
@@ -2450,7 +2449,8 @@ $('wrap').addEventListener('mouseout', e => {
   hideTip();
 });
 
-$('wrap').addEventListener('click', e => {
+$('wrap').addEventListener('mousedown', e => {
+  if (e.button !== 0) return;
   const td = e.target.closest('td');
   if (!td || td.classList.contains('pn')) return;
   if (!isNumberCell(td)) return;
