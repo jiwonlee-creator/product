@@ -1,0 +1,2625 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>공정 진행현황</title>
+<style id="fz-style"></style>
+<style>
+:root {
+  --bg: #f8f9fa;
+  --surface: #ffffff;
+  --hd-bg: #f3f4f6;
+  --grid: #b0b8c4;
+  --grid-dark: #334155;
+  --txt: #1f2937;
+  --txt-sub: #4b5563;
+  --primary: #2563eb;
+  --today-hd: #fef08a;
+  --today-bg: #fef9c3;
+  --week-hd: #fef9c3;
+  --week-bg: #fefce8;
+}
+* { box-sizing: border-box; }
+html, body {
+  margin: 0; height: 100%;
+  background: var(--bg);
+  color: var(--txt);
+  font-family: 'Malgun Gothic', 'Apple SD Gothic Neo', 'Pretendard', system-ui, sans-serif;
+  font-size: 11.5px;
+  -webkit-font-smoothing: antialiased;
+}
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: #f1f3f4; border-left: 1px solid #dadce0; border-top: 1px solid #dadce0; }
+::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 5px; border: 2px solid #f1f3f4; }
+::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+.app { display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
+
+header {
+  display: flex; flex-wrap: wrap; gap: 8px; align-items: center;
+  padding: 6px 14px;
+  background: var(--surface);
+  border-bottom: 1px solid #dadce0;
+  z-index: 10;
+}
+h1 {
+  margin: 0; font-size: 15px; font-weight: 800; letter-spacing: -0.3px;
+  color: var(--txt); display: flex; align-items: center; gap: 7px;
+}
+
+input, select, button {
+  background: var(--surface); color: var(--txt);
+  border: 1px solid #cbd5e1; border-radius: 4px;
+  padding: 2px 8px; font: inherit; font-size: 11px;
+  height: 22px;
+}
+input:focus, select:focus {
+  outline: none; border-color: var(--primary);
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.15);
+}
+button { cursor: pointer; font-weight: 700; line-height: 16px; }
+button:hover { background: #f3f4f6; border-color: #94a3b8; }
+button.primary {
+  background: var(--primary); color: #ffffff;
+  border-color: var(--primary); font-weight: 700;
+}
+button.primary:hover { background: #1d4ed8; }
+
+.toolbar-sub {
+  display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center;
+  gap: 6px; padding: 5px 14px;
+  background: #f8fafc;
+  border-bottom: 1px solid var(--grid);
+}
+.legend { display: flex; gap: 4px; flex-wrap: wrap; align-items: center; }
+.chip {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 2px 7px; border-radius: 3px; font-size: 11px; font-weight: 700;
+  border: 1px solid #cbd5e1; background: #ffffff; color: var(--txt);
+  cursor: pointer; user-select: none; height: 22px;
+}
+.chip:hover { background: #f1f5f9; }
+.chip.active { outline: 2px solid #334155; outline-offset: 0px; }
+.chip .swatch {
+  width: 10px; height: 10px;
+  border: 1px solid #94a3b8;
+}
+.meta {
+  color: var(--txt-sub); font-size: 11px;
+  display: flex; gap: 10px; flex-wrap: wrap; align-items: center;
+}
+.meta b { color: var(--txt); font-weight: 700; }
+
+.dash-bar {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  align-items: stretch;
+  gap: 8px;
+  padding: 5px 14px;
+  background: #f1f3f9;
+  border-bottom: 1px solid var(--grid);
+}
+@media (max-width: 900px) {
+  .dash-bar { grid-template-columns: 1fr; }
+}
+.dash-box {
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  border-left: 3px solid #2563eb;
+  border-radius: 5px;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.dash-box.alert-box {
+  border-left-color: #94a3b8;
+}
+.dash-box.alert-box.has-alert {
+  border-color: #fca5a5;
+  border-left: 3px solid #dc2626;
+}
+.dash-hd {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  padding: 3px 8px;
+  background: #f8fafc;
+  border-bottom: 1px solid #e2e8f0;
+  font-size: 11px;
+  font-weight: 800;
+  color: #1e293b;
+}
+.dash-box.alert-box.has-alert .dash-hd {
+  background: #fef2f2;
+  border-bottom-color: #fecaca;
+  color: #991b1b;
+}
+.dash-hd-left {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  min-width: 0;
+}
+.dash-num {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 15px;
+  height: 15px;
+  border-radius: 3px;
+  background: #2563eb;
+  color: #ffffff;
+  font-size: 10px;
+  font-weight: 800;
+  flex-shrink: 0;
+}
+.dash-box.alert-box .dash-num {
+  background: #64748b;
+}
+.dash-box.alert-box.has-alert .dash-num {
+  background: #dc2626;
+}
+.dash-alert-badge {
+  display: inline-block;
+  padding: 0 5px;
+  border-radius: 3px;
+  font-size: 10px;
+  font-weight: 800;
+  background: #dc2626;
+  color: #ffffff;
+  flex-shrink: 0;
+}
+.dash-ok-badge {
+  display: inline-block;
+  padding: 0 5px;
+  border-radius: 3px;
+  font-size: 10px;
+  font-weight: 700;
+  background: #dcfce7;
+  color: #15803d;
+  flex-shrink: 0;
+}
+.dash-hd-sub {
+  font-size: 10.5px;
+  font-weight: 600;
+  color: #475569;
+  flex-shrink: 0;
+}
+.dash-list {
+  padding: 4px 6px;
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 3px 4px;
+}
+@media (max-width: 1200px) {
+  .dash-list { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+.dash-item {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  padding: 2px 5px;
+  border-radius: 3px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  font-size: 10.5px;
+  line-height: 15px;
+  cursor: pointer;
+  min-width: 0;
+}
+.dash-item:hover {
+  background: #eff6ff;
+  border-color: #93c5fd;
+}
+.dash-box.alert-box.has-alert .dash-item:hover {
+  background: #fef2f2;
+  border-color: #fca5a5;
+}
+.d-tag {
+  display: inline-block;
+  padding: 0 3px;
+  border-radius: 2px;
+  font-size: 9px;
+  font-weight: 800;
+  line-height: 14px;
+  flex-shrink: 0;
+}
+.d-dom { background: #dbeafe; color: #1e40af; border: 1px solid #bfdbfe; }
+.d-ov  { background: #e0e7ff; color: #3730a3; border: 1px solid #c7d2fe; }
+.d-a   { background: #d1fae5; color: #065f46; border: 1px solid #a7f3d0; }
+.d-rec { background: #fef3c7; color: #92400e; border: 1px solid #fde68a; }
+.d-pn {
+  font-weight: 800;
+  color: #0f172a;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
+}
+.d-qty {
+  font-weight: 800;
+  color: #1d4ed8;
+  font-variant-numeric: tabular-nums;
+  flex-shrink: 0;
+  margin-left: auto;
+}
+.d-qty.neg {
+  color: #b91c1c;
+  background: #fee2e2;
+  padding: 0 4px;
+  border-radius: 2px;
+}
+.dash-empty {
+  grid-column: 1 / -1;
+  padding: 4px;
+  text-align: center;
+  color: #64748b;
+  font-size: 11px;
+}
+
+.wrap {
+  flex: 1; overflow: auto; position: relative;
+  background: var(--surface);
+}
+table {
+  border-collapse: separate;
+  border-spacing: 0;
+  min-width: 100%;
+}
+th, td {
+  padding: 0 5px;
+  border-right: 1px solid var(--grid);
+  border-bottom: 1px solid var(--grid);
+  white-space: nowrap;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+  line-height: 20px;
+  height: 21px;
+}
+
+tr.v-spacer td {
+  padding: 0 !important;
+  border: none !important;
+  background: transparent !important;
+  line-height: 0;
+}
+
+thead tr:first-child th {
+  position: sticky; top: 0; z-index: 3;
+  background: var(--hd-bg); color: var(--txt);
+  font-weight: 700; font-size: 11px;
+  padding: 0 4px; min-width: 42px;
+  height: 22px; line-height: 21px;
+}
+thead tr:nth-child(2) th {
+  position: sticky; top: 22px; z-index: 3;
+  background: var(--hd-bg); color: #4b5563;
+  font-weight: 700; font-size: 10.5px;
+  padding: 0 4px;
+  border-bottom: 2px solid var(--grid-dark);
+  height: 20px; line-height: 19px;
+}
+thead tr:first-child th[rowspan="2"] {
+  border-bottom: 2px solid var(--grid-dark);
+}
+th.sat { color: #2563eb !important; }
+th.sun { color: #e11d48 !important; }
+td.t, th.t { text-align: left; padding: 0 9px; }
+
+.fz { position: sticky; z-index: 2; background: #ffffff; }
+thead th.fz { z-index: 5 !important; background: var(--hd-bg); }
+.fz-end { border-right: 3px double var(--grid-dark) !important; }
+
+td.cust-merged-top {
+  vertical-align: top;
+  padding-top: 2px;
+  background: #ffffff !important;
+  color: #1e3a8a;
+  font-weight: 700;
+}
+td.cust-merged-mid {
+  border-bottom-color: transparent !important;
+  background: #ffffff !important;
+  color: transparent !important;
+}
+td.cust-merged-bot {
+  background: #ffffff !important;
+  color: transparent !important;
+}
+tr.first td.cust-merged-mid,
+tr.first td.cust-merged-bot {
+  border-top: 2px solid var(--grid-dark);
+}
+
+tr.first td { border-top: 2px solid var(--grid-dark); }
+td.cust { color: #1e3a8a; font-weight: 700; }
+td.pn { color: #111827; font-weight: 700; cursor: pointer; }
+td.pn:hover { background-color: #eff6ff !important; color: #1d4ed8; text-decoration: underline; }
+td.nm { color: #1f2937; font-weight: 500; }
+td.rep { color: #374151; font-weight: 400; }
+
+td.cat {
+  text-align: left;
+  padding: 0 9px;
+  min-width: 120px;
+  background: #ffffff !important;
+  color: #1f2937;
+  font-weight: 500;
+}
+tr.c-bal td.cat {
+  text-align: center;
+  background: #fef9c3 !important;
+  color: #b91c1c !important;
+  font-weight: 800;
+}
+
+th.today { background: var(--today-hd) !important; color: #1f2937; }
+th.week  { background: var(--week-hd) !important; color: #1f2937; }
+td.today { background-color: var(--today-bg); }
+td.week  { background-color: var(--week-bg); }
+
+td.z { color: #6b7280; font-weight: 400; }
+
+.c-deliv { --cell-bg: #fecaca; --cell-txt: #7f1d1d; }
+.c-plan  { --cell-bg: #bfdbfe; --cell-txt: #1e3a8a; }
+.c-proc  { --cell-bg: #a5f3fc; --cell-txt: #164e63; }
+.c-wip   { --cell-bg: #e0e7ff; --cell-txt: #312e81; }
+.c-wipt  { --cell-bg: #ede9fe; --cell-txt: #4c1d95; }
+.c-qa    { --cell-bg: #fce7f3; --cell-txt: #831843; }
+.c-wait  { --cell-bg: #dcfce7; --cell-txt: #14532d; }
+.c-ship  { --cell-bg: #a7f3d0; --cell-txt: #064e3b; }
+
+td.pos {
+  background-color: var(--cell-bg, #f1f5f9) !important;
+  color: var(--cell-txt, #111827) !important;
+  font-weight: 700;
+}
+
+tr.is-bulk td.today.pos, tr.is-bulk td.today.n,
+tr.is-erp td.today.pos, tr.is-erp td.today.n,
+tr.is-outwip td.today.pos, tr.is-outwip td.today.n,
+tr.is-outplan td:not(.fz).pos, tr.is-outplan td:not(.fz).n {
+  cursor: pointer;
+}
+tr.is-bulk td.today.pos:hover, tr.is-bulk td.today.n:hover,
+tr.is-erp td.today.pos:hover, tr.is-erp td.today.n:hover,
+tr.is-outwip td.today.pos:hover, tr.is-outwip td.today.n:hover,
+tr.is-outplan td:not(.fz).pos:hover, tr.is-outplan td:not(.fz).n:hover {
+  outline: 2px solid #2563eb;
+  outline-offset: -2px;
+}
+
+tr.c-bal td:not(.fz) {
+  background-color: #86efac !important;
+  color: #064e3b !important;
+  font-weight: 700;
+  border-top: 1px solid #475569;
+}
+tr.c-bal td.n {
+  background-color: #fef9c3 !important;
+  color: #b91c1c !important;
+  font-weight: 800;
+}
+
+td.n {
+  background-color: #fee2e2 !important;
+  color: #b91c1c !important;
+  font-weight: 800;
+}
+
+.erp-pop {
+  position: fixed; left: 0; top: 0; z-index: 10000; display: none;
+  min-width: 300px; max-width: 440px;
+  background: #ffffff; color: #0f172a;
+  border: 1px solid #94a3b8; border-top: 3px solid #7c3aed; border-radius: 6px;
+  padding: 8px 11px 10px; box-shadow: 0 10px 26px rgba(15, 23, 42, 0.24);
+  font-size: 12px; line-height: 1.4;
+}
+.erp-pop.bulk-wait { border-top-color: #16a34a; }
+.erp-pop.bulk-clean { border-top-color: #0891b2; }
+.erp-pop.outplan-pop { border-top-color: #7c3aed; }
+.erp-pop.bulk-wait .pn-tip-code { color: #15803d; }
+.erp-pop.bulk-clean .pn-tip-code { color: #0e7490; }
+.erp-pop.outplan-pop .pn-tip-code { color: #6d28d9; }
+.erp-pop .pn-tip-code { color: #6d28d9; }
+.erp-pop .pn-tip-src { color: #6d28d9; background: #f5f3ff; border-color: #ddd6fe; }
+.erp-pop.bulk-wait .pn-tip-src { color: #15803d; background: #f0fdf4; border-color: #bbf7d0; }
+.erp-pop.bulk-clean .pn-tip-src { color: #0e7490; background: #ecfeff; border-color: #a5f3fc; }
+.erp-pop.outplan-pop .pn-tip-src { color: #15803d; background: #f0fdf4; border-color: #bbf7d0; }
+.erp-pop-x { border: none; background: transparent; font-size: 15px; line-height: 1; cursor: pointer; color: #64748b; padding: 0 2px; height: auto; }
+.erp-pop-x:hover { color: #0f172a; background: transparent; }
+.erp-sec { margin-top: 6px; }
+.erp-sec-hd { display: flex; justify-content: space-between; align-items: center; font-size: 11px; font-weight: 700; color: #475569; margin-bottom: 3px; }
+.erp-sec-hd b.wk { color: #6d28d9; }
+.erp-sec-hd b.cl { color: #0e7490; }
+.erp-sec-hd b.wt { color: #15803d; }
+.erp-sn-list { display: flex; flex-wrap: wrap; gap: 3px; max-height: 150px; overflow-y: auto; padding: 4px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 4px; }
+.erp-sn { font-size: 11px; font-weight: 700; font-variant-numeric: tabular-nums; padding: 1px 6px; border-radius: 3px; background: #fff; border: 1px solid #cbd5e1; user-select: all; }
+.erp-sn-list.wk .erp-sn { border-color: #c4b5fd; background: #f5f3ff; color: #4c1d95; }
+.erp-sn-list.cl .erp-sn { border-color: #a5f3fc; background: #ecfeff; color: #155e75; }
+.erp-sn-list.wt .erp-sn { border-color: #bbf7d0; background: #f0fdf4; color: #166534; }
+.erp-vd-cnt { color: #0f172a; font-weight: 800; margin-left: 3px; }
+.erp-sn-none { font-size: 11px; color: #94a3b8; padding: 2px 4px; }
+.erp-date-grid { display: flex; flex-wrap: wrap; gap: 4px; padding: 5px; background: #f0f9ff; border: 1px solid #bae6fd; border-radius: 4px; }
+.erp-date-chip { display: inline-flex; align-items: center; gap: 4px; padding: 2px 7px; border-radius: 3px; background: #ffffff; border: 1px solid #7dd3fc; font-size: 11px; font-weight: 700; color: #0c4a6e; }
+.erp-date-chip b { color: #0369a1; font-weight: 800; }
+.erp-pop-actions { display: flex; align-items: center; gap: 6px; margin-top: 8px; flex-wrap: wrap; }
+.erp-btn { height: 22px; padding: 0 9px; font-size: 11px; font-weight: 700; border: 1px solid #cbd5e1; border-radius: 4px; background: #fff; cursor: pointer; }
+.erp-btn:hover { background: #f5f3ff; border-color: #7c3aed; }
+.erp-btn.primary { background: #7c3aed; color: #fff; border-color: #7c3aed; }
+.erp-btn.primary:hover { background: #6d28d9; }
+.erp-btn.clean-pri { background: #0891b2; color: #fff; border-color: #0891b2; }
+.erp-btn.clean-pri:hover { background: #0e7490; }
+.erp-btn.wait-pri { background: #16a34a; color: #fff; border-color: #16a34a; }
+.erp-btn.wait-pri:hover { background: #15803d; }
+.erp-copied { font-size: 11px; font-weight: 700; }
+.erp-pop-note { margin-top: 6px; font-size: 10.5px; color: #64748b; }
+
+.pn-tip {
+  position: fixed;
+  left: 0; top: 0;
+  z-index: 9999;
+  pointer-events: none;
+  display: none;
+  min-width: 240px;
+  max-width: 360px;
+  background: #ffffff;
+  color: #0f172a;
+  border: 1px solid #94a3b8;
+  border-top: 3px solid #2563eb;
+  border-radius: 6px;
+  padding: 8px 11px;
+  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.18);
+  font-size: 12px;
+  line-height: 1.4;
+  will-change: transform;
+}
+.pn-tip.bulk-wait { border-top-color: #16a34a; }
+.pn-tip.bulk-clean { border-top-color: #0891b2; }
+.pn-tip.wip-tip { border-top-color: #7c3aed; }
+.pn-tip.outplan-tip { border-top-color: #7c3aed; }
+.pn-tip-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  padding-bottom: 5px;
+  margin-bottom: 6px;
+  border-bottom: 1px solid #e2e8f0;
+}
+.pn-tip-code { font-weight: 800; color: #1d4ed8; font-size: 12.5px; }
+.pn-tip.bulk-wait .pn-tip-code { color: #15803d; }
+.pn-tip.bulk-clean .pn-tip-code { color: #0e7490; }
+.pn-tip.wip-tip .pn-tip-code { color: #6d28d9; }
+.pn-tip.outplan-tip .pn-tip-code { color: #6d28d9; }
+.pn-tip-sub {
+  font-size: 11px;
+  color: #475569;
+  margin-bottom: 6px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.pn-tip-src {
+  font-size: 10px; font-weight: 700; color: #15803d;
+  background: #f0fdf4; border: 1px solid #bbf7d0;
+  padding: 0 5px; border-radius: 3px;
+  flex-shrink: 0;
+}
+.pn-tip-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+.pn-tip-box {
+  background: #f8fafc; border: 1px solid #e2e8f0;
+  border-radius: 4px; padding: 5px 8px;
+}
+.pn-tip-lbl { display: block; font-size: 10.5px; font-weight: 700; color: #64748b; margin-bottom: 1px; }
+.pn-tip-val { display: block; font-size: 13px; font-weight: 800; color: #0f172a; font-variant-numeric: tabular-nums; }
+.pn-tip-val.kf { color: #1d4ed8; }
+.pn-tip-val.rf { color: #15803d; }
+.pn-tip-extra { margin-top: 6px; padding-top: 5px; border-top: 1px dashed #e2e8f0; font-size: 11px; }
+.pn-tip-extra-lbl { font-weight: 700; color: #475569; margin-bottom: 2px; }
+.pn-tip-sn-preview { color: #0f172a; font-weight: 700; word-break: break-all; max-height: 70px; overflow: hidden; }
+.pn-tip-dates { display: flex; flex-wrap: wrap; gap: 3px; margin-top: 3px; }
+.pn-tip-d-pill { background: #e0f2fe; color: #0369a1; border: 1px solid #bae6fd; border-radius: 3px; padding: 0 5px; font-size: 10.5px; font-weight: 700; }
+.pn-tip-hint { margin-top: 5px; font-size: 10px; color: #64748b; }
+.pn-tip-empty { color: #64748b; font-size: 11px; padding: 2px 0; }
+.pn-tip-warn { color: #b91c1c; font-size: 11px; font-weight: 700; padding: 2px 0; }
+
+.live { font-size: 11px; font-weight: 700; color: #15803d; }
+.live.off { color: #b45309; }
+.msg { padding: 48px 20px; text-align: center; color: var(--txt-sub); font-size: 13px; }
+.err { color: #dc2626; font-weight: 700; }
+</style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <h1>공정 진행현황</h1>
+  </header>
+
+  <div class="toolbar-sub">
+    <div class="legend" id="legend">
+      <span id="legendChips" style="display:contents"></span>
+      <button id="today" title="오늘 날짜 열로 이동" style="display:none">오늘로 이동</button>
+      <button id="refresh" class="primary">새로고침</button>
+      <span id="legendWeek" style="display:contents"></span>
+      <input id="q" type="search" placeholder="검색 (고객사 · 품번 · 품명…)" style="width:185px">
+    </div>
+    <div class="meta">
+      <span id="meta" style="display:contents"></span>
+      <span id="live" class="live"></span>
+      <span id="progress" style="color:var(--primary);font-weight:700"></span>
+    </div>
+  </div>
+
+  <div class="dash-bar" id="dashBar" style="display:none"></div>
+
+  <div class="wrap" id="wrap"><div class="msg">불러오는 중…</div></div>
+</div>
+<div class="pn-tip" id="pnTip"></div>
+<div class="erp-pop" id="erpPop"></div>
+
+<script>
+const API_URL = 'https://script.google.com/macros/s/AKfycbxvuXW-aOweI9LAYgzfbgVhhUo1G386XdIRJNm4jxUlIF7nBVBysXjJVKJIyYa7rwLbDA/exec';
+const DEFAULT_SHEET = '공정현황_백엔드_AI';
+const FIRST_FETCH = 450;
+const PAGE_FETCH = 3000;
+const ROW_H = 21;
+const STAGE_TO_TODAY = true;
+const V_BUFFER = 8;
+
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+let lastSync = null;
+const fmtT = d => d ? String(d.getHours()).padStart(2,'0') + ':' + String(d.getMinutes()).padStart(2,'0') + ':' + String(d.getSeconds()).padStart(2,'0') : '';
+
+const state = {
+  sheet: DEFAULT_SHEET,
+  cache: {},
+  partInfo: { sheetName: '공정진행', gTitle: '외경', hTitle: '두께', map: {} },
+  partLookup: {},
+  partReady: false,
+  bulkInfo: {
+    sheetName: 'BULK RAW',
+    waitRows: 0,
+    cleanRows: 0,
+    matchedCol: 'P',
+    waitItems: [],
+    cleanItems: [],
+    waitSerials: [],
+    cleanSerials: [],
+    cleanDates: [],
+    debug: ''
+  },
+  bulkCalcCache: {},
+  bulkSerialCache: {},
+  bulkDateCache: {},
+  bulkReady: false,
+  erpInfo: { sheetName: '정삭 재공 시리얼', totalRows: 0, items: [], debug: '' },
+  erpMap: null,
+  erpReady: false,
+  erpFetching: false,
+  outWipInfo: { sheetName: '협력사 재공', totalRows: 0, todayLabel: '', items: [], planItems: [], debug: '' },
+  outWipMap: null,
+  outPlanMap: null,
+  outWipReady: false,
+  outWipFetching: false,
+  metaFetching: false,
+  busy: false,
+  metaOnce: false,
+  build: '',
+  lastMs: 0,
+  lastSrc: '',
+  snapAt: 0,
+  erpAt: 0,
+  outWipAt: 0,
+  q: '',
+  catFilter: '',
+  token: 0,
+  filteredRows: [],
+  ctx: null,
+  vRange: { start: -1, end: -1 },
+  lastFzCss: ''
+};
+
+function normPn(s) {
+  return String(s || '').replace(/\s+/g, '').replace(/[\u2010-\u2015\u2212]/g, '-');
+}
+
+function parseDateKeyFromHeader(h) {
+  const s = String(h || '').trim();
+  const dm = s.match(/^\d{4}-(\d{2})-(\d{2})/);
+  if (dm) return parseInt(dm[1], 10) + '/' + parseInt(dm[2], 10);
+  const m1 = s.match(/^(\d{1,2})[./-](\d{1,2})/);
+  if (m1) return parseInt(m1[1], 10) + '/' + parseInt(m1[2], 10);
+  return '';
+}
+
+function calcFzWidths(indexed, head, cols, freeze, custIdx, pnIdx, gi) {
+  const canvas = calcFzWidths._c || (calcFzWidths._c = document.createElement('canvas'));
+  const g = canvas.getContext('2d');
+  const fam = "'Malgun Gothic', 'Apple SD Gothic Neo', 'Pretendard', system-ui, sans-serif";
+  const widths = [];
+  for (let k = 0; k < freeze; k++) {
+    const c = cols[k];
+    const isCust = c === -1 || c === custIdx;
+    const weight = (isCust || c === pnIdx) ? '700' : '500';
+    g.font = '700 11px ' + fam;
+    const title = c === -1 ? '고객사' : (String(head[c] || '').trim() || (isCust ? '고객사' : ''));
+    let maxW = g.measureText(title).width;
+    g.font = weight + ' 11.5px ' + fam;
+    const seen = new Set();
+    for (let i = 0; i < indexed.length; i++) {
+      const it = indexed[i];
+      const t = isCust ? it.cust : String(it.row[c] ?? '');
+      if (!t || seen.has(t)) continue;
+      seen.add(t);
+      const w = g.measureText(t).width;
+      if (w > maxW) maxW = w;
+    }
+    widths.push(Math.ceil(maxW) + 22 + (k === freeze - 1 ? 3 : 0));
+  }
+  return widths;
+}
+
+const LS_KEY = 'KNJ_PROC_SNAPSHOT_MAIN';
+const LS_PART_KEY = 'KNJ_PART_CACHE_V24';
+const LS_BULK_KEY = 'KNJ_BULK_CACHE_V24';
+const LS_ERP_KEY = 'KNJ_ERP_CACHE_V24';
+const LS_OUTWIP_KEY = 'KNJ_OUTWIP_CACHE_V28';
+
+function countSheetErrors(values) {
+  if (!values || values.length < 2) return 0;
+  let errCnt = 0;
+  const head = values[0] || [];
+  const lim = Math.min(4, head.length);
+  for (let i = 1; i < values.length; i++) {
+    const r = values[i];
+    for (let c = 0; c < lim; c++) {
+      const s = r[c];
+      if (typeof s === 'string' && s.charCodeAt(0) === 35 && /^#(N\/A|REF!|ERROR!|VALUE!|NAME\?|DIV\/0!)/.test(s)) errCnt++;
+    }
+  }
+  return errCnt;
+}
+
+function setPartInfo(info, persist) {
+  if (!info || !info.map) return;
+  state.partInfo = info;
+  const lookup = {};
+  Object.keys(info.map).forEach(k => {
+    const raw = String(k || '').trim();
+    const clean = normPn(k);
+    if (raw) {
+      lookup[raw] = info.map[k];
+      lookup[raw.toUpperCase()] = info.map[k];
+    }
+    if (clean) {
+      lookup[clean] = info.map[k];
+      lookup[clean.toUpperCase()] = info.map[k];
+    }
+  });
+  if (Object.keys(lookup).length === 0) return;
+  state.partLookup = lookup;
+  state.partReady = true;
+  if (persist) {
+    try { localStorage.setItem(LS_PART_KEY, JSON.stringify(info)); } catch (e) {}
+  }
+  const cur = state.cache[state.sheet];
+  if (cur && cur.values) {
+    cur.indexed = buildIndex(cur.values);
+    if (state.ctx) {
+      state.ctx.fzWidths = calcFzWidths(cur.indexed, cur.values[0], state.ctx.cols, state.ctx.freeze, state.ctx.custIdx, state.ctx.pnIdx, state.ctx.gi);
+      applyFilter(false);
+    }
+  }
+  if (activeTip && activeTip.type === 'pn') showPartTip(activeTip.pn);
+}
+
+function setBulkInfo(info, persist) {
+  if (!info) return;
+  state.bulkInfo = info;
+  state.bulkCalcCache = {};
+  state.bulkSerialCache = {};
+  state.bulkDateCache = {};
+  state.bulkReady = true;
+  const hasData = Number(info.waitRows) > 0 || Number(info.cleanRows) > 0 ||
+    (info.waitItems && info.waitItems.length > 0) || (info.cleanItems && info.cleanItems.length > 0);
+  if (persist && hasData) {
+    try { localStorage.setItem(LS_BULK_KEY, JSON.stringify(info)); } catch (e) {}
+  }
+  if (activeTip && activeTip.type === 'bulk') showBulkTip(activeTip.item);
+  if (erpPopItem && (erpPopMode === 'bulk-wait' || erpPopMode === 'bulk-clean')) {
+    showBulkPop(erpPopItem, null, erpPopMode);
+  }
+}
+
+function setErpInfo(info, persist) {
+  if (!info || !Array.isArray(info.items)) return;
+  state.erpInfo = info;
+  const map = {};
+  info.items.forEach(x => {
+    const k = normPn(x[0]).toUpperCase();
+    if (k) map[k] = (map[k] || []).concat(x[1] || []);
+  });
+  state.erpMap = map;
+  state.erpReady = true;
+  if (persist && (Number(info.totalRows) > 0 || Object.keys(map).length > 0)) {
+    try { localStorage.setItem(LS_ERP_KEY, JSON.stringify(info)); } catch (e) {}
+  }
+  if (activeTip && activeTip.type === 'wip') showWipTip(activeTip.item);
+  if (erpPopItem && erpPopMode === 'wip') showErpPop(erpPopItem, null, 'wip');
+}
+
+function setOutWipInfo(info, persist) {
+  if (!info || (!Array.isArray(info.items) && !Array.isArray(info.planItems))) return;
+  state.outWipInfo = info;
+
+  const map = {};
+  (info.items || []).forEach(x => {
+    const k = normPn(x[0]).toUpperCase();
+    if (k) map[k] = x[1] || [];
+  });
+  state.outWipMap = map;
+
+  const planMap = {};
+  (info.planItems || []).forEach(x => {
+    const k = normPn(x[0]).toUpperCase();
+    if (!k) return;
+    const dObj = {};
+    (x[1] || []).forEach(dPair => {
+      const dk = String(dPair[0] || '').trim();
+      const vObj = {};
+      (dPair[1] || []).forEach(vPair => {
+        const vName = String(vPair[0] || '').trim();
+        const qty = Number(vPair[1]) || 0;
+        if (vName && qty > 0) vObj[vName] = (vObj[vName] || 0) + qty;
+      });
+      if (dk && Object.keys(vObj).length > 0) dObj[dk] = vObj;
+    });
+    if (Object.keys(dObj).length > 0) planMap[k] = dObj;
+  });
+  state.outPlanMap = planMap;
+
+  state.outWipReady = true;
+  if (persist && (Number(info.totalRows) > 0 || Object.keys(map).length > 0 || Object.keys(planMap).length > 0)) {
+    try { localStorage.setItem(LS_OUTWIP_KEY, JSON.stringify(info)); } catch (e) {}
+  }
+  if (activeTip) {
+    if (activeTip.type === 'wip') showWipTip(activeTip.item);
+    else if (activeTip.type === 'outplan') showOutPlanTip(activeTip.item, activeTip.dateKey);
+  }
+  if (erpPopItem) {
+    if (erpPopMode === 'outwip') showErpPop(erpPopItem, null, 'outwip');
+    else if (erpPopMode === 'outplan') showOutPlanPop(erpPopItem, erpPopDateKey, null);
+  }
+}
+
+function getErpMatch(item) {
+  if (!state.erpMap || !item) return null;
+  const key = normPn(item.pn).toUpperCase();
+  if (!key) return [];
+  return state.erpMap[key] || [];
+}
+
+function getOutWipMatch(item) {
+  if (!state.outWipMap || !item) return null;
+  const key = normPn(item.pn).toUpperCase();
+  if (!key) return [];
+
+  if (key.length >= 7) {
+    const l3 = key.slice(0, 3);
+    const r4 = key.slice(-4);
+    const merged = {};
+    Object.keys(state.outWipMap).forEach(k => {
+      if (k.indexOf(l3) !== -1 && k.indexOf(r4) !== -1) {
+        (state.outWipMap[k] || []).forEach(pair => {
+          const v = pair[0];
+          const c = Number(pair[1]) || 0;
+          if (c > 0) merged[v] = (merged[v] || 0) + c;
+        });
+      }
+    });
+    const keys = Object.keys(merged);
+    if (keys.length > 0) return keys.map(v => [v, merged[v]]);
+  }
+
+  return state.outWipMap[key] || [];
+}
+
+// 외주 입고 계획: 해당 품번 + 해당 일자(dateKey)에 매칭되는 협력사별 수량만 반환
+function getOutPlanMatch(item, dateKey) {
+  if (!item) return null;
+  if (!state.outPlanMap) return null;
+
+  const key = normPn(item.pn).toUpperCase();
+  if (!key || !dateKey) return [];
+
+  const merged = {};
+  const addFromDateObj = dObj => {
+    if (!dObj || !dObj[dateKey]) return;
+    const vObj = dObj[dateKey];
+    Object.keys(vObj).forEach(v => {
+      const qty = Number(vObj[v]) || 0;
+      if (qty > 0) merged[v] = (merged[v] || 0) + qty;
+    });
+  };
+
+  if (state.outPlanMap[key]) {
+    addFromDateObj(state.outPlanMap[key]);
+  } else if (key.length >= 7) {
+    const l3 = key.slice(0, 3);
+    const r4 = key.slice(-4);
+    Object.keys(state.outPlanMap).forEach(k => {
+      if (k.indexOf(l3) !== -1 && k.indexOf(r4) !== -1) {
+        addFromDateObj(state.outPlanMap[k]);
+      }
+    });
+  }
+
+  return Object.keys(merged)
+    .map(v => [v, merged[v]])
+    .sort((a, b) => b[1] - a[1]);
+}
+
+function getPartMatch(pn) {
+  const raw = String(pn || '').trim();
+  const clean = normPn(pn);
+  return state.partLookup[raw] || state.partLookup[raw.toUpperCase()] ||
+         state.partLookup[clean] || state.partLookup[clean.toUpperCase()] || null;
+}
+
+function getBulkMatch(item) {
+  if (!item || !item.pn || !item.bulkType) return null;
+  const cleanPn = normPn(item.pn).toUpperCase();
+  if (cleanPn.length < 7) return [0, 0];
+
+  const cKey = item.bulkType + '|' + cleanPn;
+  if (state.bulkCalcCache[cKey]) return state.bulkCalcCache[cKey];
+
+  const l3 = cleanPn.slice(0, 3);
+  const r4 = cleanPn.slice(-4);
+  const items = item.bulkType === 'clean'
+    ? (state.bulkInfo.cleanItems || [])
+    : (state.bulkInfo.waitItems || state.bulkInfo.items || []);
+  let kf = 0, rf = 0;
+
+  for (let i = 0; i < items.length; i++) {
+    const tStr = items[i][0];
+    const cnt = items[i][1];
+    if (tStr.indexOf(l3) !== -1 && tStr.indexOf(r4) !== -1) {
+      if (tStr.indexOf('KF') !== -1) kf += cnt;
+      if (tStr.indexOf('RF') !== -1) rf += cnt;
+    }
+  }
+
+  const res = [kf, rf];
+  state.bulkCalcCache[cKey] = res;
+  return res;
+}
+
+function getBulkSerials(item) {
+  if (!item || !item.pn || !item.bulkType) return [];
+  const cleanPn = normPn(item.pn).toUpperCase();
+  if (cleanPn.length < 7) return [];
+
+  const cKey = item.bulkType + '|sn|' + cleanPn;
+  if (state.bulkSerialCache[cKey]) return state.bulkSerialCache[cKey];
+
+  const l3 = cleanPn.slice(0, 3);
+  const r4 = cleanPn.slice(-4);
+  const list = item.bulkType === 'clean'
+    ? (state.bulkInfo.cleanSerials || [])
+    : (state.bulkInfo.waitSerials || []);
+
+  const seen = new Set();
+  const out = [];
+  for (let i = 0; i < list.length; i++) {
+    const tStr = list[i][0];
+    if (tStr.indexOf(l3) !== -1 && tStr.indexOf(r4) !== -1) {
+      const sns = list[i][1] || [];
+      for (let j = 0; j < sns.length; j++) {
+        const sn = String(sns[j] || '').trim();
+        if (sn && !seen.has(sn)) {
+          seen.add(sn);
+          out.push(sn);
+        }
+      }
+    }
+  }
+
+  state.bulkSerialCache[cKey] = out;
+  return out;
+}
+
+function getBulkCleanDates(item) {
+  if (!item || !item.pn) return [];
+  const cleanPn = normPn(item.pn).toUpperCase();
+  if (cleanPn.length < 7) return [];
+
+  const cKey = 'cd|' + cleanPn;
+  if (state.bulkDateCache[cKey]) return state.bulkDateCache[cKey];
+
+  const l3 = cleanPn.slice(0, 3);
+  const r4 = cleanPn.slice(-4);
+  const list = state.bulkInfo.cleanDates || [];
+  const dateTotals = {};
+
+  for (let i = 0; i < list.length; i++) {
+    const tStr = list[i][0];
+    if (tStr.indexOf(l3) !== -1 && tStr.indexOf(r4) !== -1) {
+      const pairs = list[i][1] || [];
+      for (let j = 0; j < pairs.length; j++) {
+        const dStr = String(pairs[j][0] || '').trim();
+        const cnt = Number(pairs[j][1]) || 0;
+        if (dStr && cnt > 0) {
+          dateTotals[dStr] = (dateTotals[dStr] || 0) + cnt;
+        }
+      }
+    }
+  }
+
+  const out = Object.keys(dateTotals).sort((a, b) => {
+    const pa = a.split('/').map(Number);
+    const pb = b.split('/').map(Number);
+    if (pa.length === 2 && pb.length === 2 && !isNaN(pa[0]) && !isNaN(pb[0])) {
+      return (pa[0] - pb[0]) || (pa[1] - pb[1]);
+    }
+    return a.localeCompare(b);
+  }).map(d => [d, dateTotals[d]]);
+
+  state.bulkDateCache[cKey] = out;
+  return out;
+}
+
+function todayStr() {
+  const d = new Date();
+  return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+}
+
+async function fetchMetaInfoBg(force, skipPart) {
+  if (state.metaFetching) return;
+  state.metaFetching = true;
+  const ctl = new AbortController();
+  const timer = setTimeout(() => ctl.abort(), 60000);
+  try {
+    const res = await fetch(API_URL + '?action=metaInfo' + (force ? '&force=1' : '') + (skipPart ? '&part=0' : ''), { signal: ctl.signal });
+    const data = await res.json();
+    if (data && data.status === 'success') {
+      if (data.partInfo && data.partInfo.map) setPartInfo(data.partInfo, true);
+      if (data.bulkInfo) setBulkInfo(data.bulkInfo, true);
+    } else {
+      if (!state.partReady) state.partReady = 'need_deploy';
+      if (!state.bulkReady) state.bulkReady = 'need_deploy';
+    }
+  } catch (e) {
+    if (!state.partReady) state.partReady = 'err';
+    if (!state.bulkReady) state.bulkReady = 'err';
+  } finally {
+    clearTimeout(timer);
+    state.metaFetching = false;
+    if (activeTip) {
+      if (activeTip.type === 'pn') showPartTip(activeTip.pn);
+      else if (activeTip.type === 'bulk') showBulkTip(activeTip.item);
+      else if (activeTip.type === 'wip') showWipTip(activeTip.item);
+      else if (activeTip.type === 'outplan') showOutPlanTip(activeTip.item, activeTip.dateKey);
+    }
+  }
+}
+
+async function fetchErpBg(force) {
+  if (state.erpFetching) return;
+  state.erpFetching = true;
+  state.erpAt = Date.now();
+  const t0 = Date.now();
+  const tick = setInterval(() => { const el = $('erpSec'); if (el && erpPopMode === 'wip') el.textContent = Math.round((Date.now() - t0) / 1000); }, 500);
+  const ctl = new AbortController();
+  const timer = setTimeout(() => ctl.abort(), 90000);
+  try {
+    const res = await fetch(API_URL + '?action=erpInfo' + (force ? '&force=1' : '') + '&_=' + Date.now(), { signal: ctl.signal });
+    const data = await res.json();
+    if (data && data.status === 'success' && data.erpInfo && Array.isArray(data.erpInfo.items)) {
+      setErpInfo(data.erpInfo, true);
+    } else {
+      state.erpReady = 'need_deploy';
+    }
+  } catch (e) {
+    if (!state.erpReady) state.erpReady = 'err';
+  } finally {
+    clearTimeout(timer);
+    clearInterval(tick);
+    state.erpFetching = false;
+    if (activeTip && activeTip.type === 'wip') showWipTip(activeTip.item);
+    if (erpPopItem && erpPopMode === 'wip') showErpPop(erpPopItem, null, 'wip');
+  }
+}
+
+async function fetchOutWipBg(force) {
+  if (state.outWipFetching) return;
+  state.outWipFetching = true;
+  state.outWipAt = Date.now();
+  const t0 = Date.now();
+  const tick = setInterval(() => {
+    const el = $('erpSec');
+    if (el && (erpPopMode === 'outwip' || erpPopMode === 'outplan')) {
+      el.textContent = Math.round((Date.now() - t0) / 1000);
+    }
+  }, 500);
+  const ctl = new AbortController();
+  const timer = setTimeout(() => ctl.abort(), 90000);
+  try {
+    const res = await fetch(API_URL + '?action=outWipInfo' + (force ? '&force=1' : '') + '&_=' + Date.now(), { signal: ctl.signal });
+    const data = await res.json();
+    if (data && data.status === 'success' && data.outWipInfo && (Array.isArray(data.outWipInfo.items) || Array.isArray(data.outWipInfo.planItems))) {
+      state.build = data.build || '(구버전)';
+      setOutWipInfo(data.outWipInfo, true);
+    } else {
+      state.outWipReady = 'need_deploy';
+    }
+  } catch (e) {
+    if (!state.outWipReady) state.outWipReady = 'err';
+  } finally {
+    clearTimeout(timer);
+    clearInterval(tick);
+    state.outWipFetching = false;
+    if (activeTip) {
+      if (activeTip.type === 'wip') showWipTip(activeTip.item);
+      else if (activeTip.type === 'outplan') showOutPlanTip(activeTip.item, activeTip.dateKey);
+    }
+    if (erpPopItem) {
+      if (erpPopMode === 'outwip') showErpPop(erpPopItem, null, 'outwip');
+      else if (erpPopMode === 'outplan') showOutPlanPop(erpPopItem, erpPopDateKey, null);
+    }
+  }
+}
+
+async function fetchPage(sheet, offset, limit, force) {
+  const url = API_URL + '?sheet=' + encodeURIComponent(sheet) + '&offset=' + offset + '&limit=' + limit + (force ? '&force=1' : '');
+  const ctl = new AbortController();
+  const timer = setTimeout(() => ctl.abort(), 90000);
+  let res, txt;
+  try {
+    res = await fetch(url, { signal: ctl.signal });
+    txt = await res.text();
+  } catch (e) {
+    throw new Error(e.name === 'AbortError' ? '90초 안에 응답이 없습니다.' : '서버 연결 실패: ' + e.message);
+  } finally { clearTimeout(timer); }
+  let data;
+  try { data = JSON.parse(txt); } catch (e) { throw new Error('JSON 응답 오류가 발생했습니다.'); }
+  if (data.status !== 'success') throw new Error(data.message || '오류');
+  return data;
+}
+
+/* 첫 화면용 저장본은 IndexedDB 에 보관 (localStorage 는 다른 캐시와 용량을 나눠 써서 저장이 실패하기 쉬움) */
+function idbOpen() {
+  return new Promise((res, rej) => {
+    const r = indexedDB.open('knj_proc', 1);
+    r.onupgradeneeded = () => r.result.createObjectStore('kv');
+    r.onsuccess = () => res(r.result);
+    r.onerror = () => rej(r.error);
+  });
+}
+async function idbGet(k) {
+  try {
+    const db = await idbOpen();
+    return await new Promise(res => {
+      const q = db.transaction('kv').objectStore('kv').get(k);
+      q.onsuccess = () => res(q.result || null);
+      q.onerror = () => res(null);
+    });
+  } catch (e) { return null; }
+}
+async function idbSet(k, v) {
+  try {
+    const db = await idbOpen();
+    await new Promise(res => {
+      const tx = db.transaction('kv', 'readwrite');
+      tx.objectStore('kv').put(v, k);
+      tx.oncomplete = tx.onerror = tx.onabort = () => res();
+    });
+  } catch (e) {}
+}
+
+function saveSnapshot(full) {
+  if (!full || !full.values || countSheetErrors(full.values) > 0) return;
+  const save = () => idbSet(LS_KEY, { sheet: full.sheet, values: full.values, totalRows: full.totalRows, updatedAt: full.updatedAt });
+  if ('requestIdleCallback' in window) requestIdleCallback(save, { timeout: 2000 });
+  else setTimeout(save, 150);
+}
+
+async function loadSnapshot() {
+  const s = await idbGet(LS_KEY);
+  if (!s || !s.values || !s.values.length) return null;
+  const ts = Date.parse(String(s.updatedAt || '').replace(' ', 'T') + '+09:00');
+  if (!ts || Date.now() - ts > 12 * 3600 * 1000 || countSheetErrors(s.values) > 0) {
+    idbSet(LS_KEY, null);
+    return null;
+  }
+  return s;
+}
+
+const CATS = [
+  [/Bal/i, 'bal'],
+  [/품질|불량/, 'qa'],
+  [/Total/i, 'wipt'],
+  [/납품/, 'deliv'],
+  [/계획/, 'plan'],
+  [/가공/, 'proc'],
+  [/재공/, 'wip'],
+  [/대기/, 'wait'],
+  [/출하/, 'ship'],
+  [/./, 'wait']
+];
+function catOf(s) { s = String(s || ''); for (const c of CATS) if (c[0].test(s)) return c[1]; return ''; }
+
+function detectLayout(head) {
+  const trims = head.map(h => String(h || '').trim());
+  const gi = trims.findIndex(h => h === '구분');
+  let pnIdx = trims.findIndex(h => h === '품번');
+  let custIdx = trims.findIndex(h => h === '고객사');
+
+  if (pnIdx < 0) {
+    if (custIdx === 0 || (gi >= 3 && trims[0] !== '')) {
+      custIdx = 0;
+      pnIdx = 1;
+    } else {
+      pnIdx = 0;
+    }
+  } else if (pnIdx === 1 && custIdx < 0) {
+    custIdx = 0;
+  }
+  return { custIdx, pnIdx, gi };
+}
+
+function buildIndex(values) {
+  if (!values || values.length < 2) return [];
+  const head = values[0];
+  const { custIdx, pnIdx, gi } = detectLayout(head);
+  const maxTextCol = Math.max(gi + 1, pnIdx + 3, 5);
+  const idx = new Array(values.length - 1);
+
+  let prevKey = null, seen = new Set(), started = false;
+  for (let i = 1; i < values.length; i++) {
+    const r = values[i];
+    const pnStr = String(r[pnIdx] ?? '').trim();
+    const nmStr = String(r[pnIdx + 1] ?? '').trim();
+    let custStr = custIdx >= 0 ? String(r[custIdx] ?? '').trim() : '';
+    if (!custStr && pnStr) {
+      const m = getPartMatch(pnStr);
+      if (m && m[2]) custStr = m[2];
+    }
+
+    const gubunStr = gi >= 0 ? String(r[gi] ?? '') : '';
+    const gubunClean = gubunStr.replace(/\s+/g, '');
+    let isFirst;
+    if (gi >= 0) {
+      isFirst = !started || seen.has(gubunStr);
+      if (isFirst) seen.clear();
+      seen.add(gubunStr);
+    } else {
+      isFirst = pnStr !== prevKey;
+      prevKey = pnStr;
+    }
+    started = true;
+
+    let bulkType = '';
+    if (gubunClean === '출하대기') bulkType = 'wait';
+    else if (gubunClean === '세정') bulkType = 'clean';
+
+    const isOutPlan = gubunClean.indexOf('외주입고계획') !== -1 || gubunClean.indexOf('외주입고') !== -1;
+    const isOutWip = !isOutPlan && gubunClean === '외주재공';
+    const isErp = !isOutWip && !isOutPlan && gubunClean.indexOf('재공') !== -1;
+
+    let s = custStr ? (custStr + '\t') : '';
+    const lim = Math.min(r.length, maxTextCol);
+    for (let c = 0; c < lim; c++) {
+      if (r[c]) s += r[c] + '\t';
+    }
+    idx[i - 1] = {
+      row: r,
+      cust: custStr,
+      pn: pnStr,
+      nm: nmStr,
+      isFirst: isFirst,
+      custPos: 'single',
+      bulkType: bulkType,
+      erp: isErp,
+      outWip: isOutWip,
+      outPlan: isOutPlan,
+      cat: gi >= 0 ? catOf(gubunStr) : '',
+      gubun: gubunStr,
+      q: s.toLowerCase()
+    };
+  }
+
+  let bStart = 0;
+  while (bStart < idx.length) {
+    let bEnd = bStart + 1;
+    while (bEnd < idx.length && !idx[bEnd].isFirst) bEnd++;
+    const span = bEnd - bStart;
+    if (span === 1) {
+      idx[bStart].custPos = 'single';
+    } else {
+      idx[bStart].custPos = 'top';
+      for (let k = bStart + 1; k < bEnd - 1; k++) idx[k].custPos = 'mid';
+      idx[bEnd - 1].custPos = 'bot';
+    }
+    bStart = bEnd;
+  }
+
+  return idx;
+}
+
+function dataSig(d) {
+  if (!d.sig) d.sig = JSON.stringify(d.values);
+  return d.sig;
+}
+
+function isSameData(prev, next) {
+  if (!prev || prev.values.length !== next.values.length) return false;
+  return dataSig(prev) === dataSig(next);
+}
+
+function updateMeta() {
+  const d = state.cache[state.sheet];
+  if (!d || !d.indexed) return;
+  const cnt = state.filteredRows ? state.filteredRows.length : d.indexed.length;
+  const errCnt = countSheetErrors(d.values);
+  $('meta').innerHTML =
+    '<span>표시 <b id="shownCount">' + cnt.toLocaleString() + '</b> / <b>' + d.indexed.length.toLocaleString() + '</b>행</span>' +
+    (d.updatedAt ? '<span>기준 ' + esc(d.updatedAt) + '</span>' : '') +
+    '<span>동기화 <b id="syncStamp">' + (lastSync ? fmtT(lastSync) : '저장본') + '</b></span>' +
+    (state.lastMs ? '<span>응답 ' + (state.lastMs / 1000).toFixed(1) + 's' + ({ cache: ' (캐시)', live: ' (시트 직접 읽음)', stale: ' (이전 캐시)' }[state.lastSrc] || '') + '</span>' : '') +
+    (errCnt ? '<span style="color:#b91c1c;font-weight:800">⚠ 시트 수식 재계산 중 (' + errCnt.toLocaleString() + '칸) — 자동 재시도 중</span>' : '');
+}
+
+async function load(sheet, force, silent, retryCount, soft) {
+  if (silent && !force && state.busy) return;
+  state.busy = true;
+  state.sheet = sheet;
+  const token = ++state.token;
+  const hasView = !!state.cache[sheet];
+  if (!force && !silent && hasView && !state.cache[sheet].loading) { state.busy = false; return renderTable(); }
+  let tick = null;
+  if (!hasView) {
+    $('wrap').innerHTML = '<div class="msg">데이터를 불러오는 중… <span id="sec">0</span>초<div id="slowHint" style="margin-top:8px;font-size:11px;color:#b45309"></div></div>';
+    const t0 = Date.now();
+    tick = setInterval(() => {
+      const el = $('sec');
+      if (!el) { clearInterval(tick); return; }
+      const s = Math.round((Date.now() - t0) / 1000);
+      el.textContent = s;
+      const hint = $('slowHint');
+      if (hint && s >= 8) hint.textContent = '서버 캐시가 없어 시트를 직접 읽는 중입니다. Apps Script에서 warmCache를 1회 실행하고 1분 트리거가 켜져 있는지 확인하세요.';
+    }, 300);
+  } else {
+    $('progress').textContent = '동기화 중…';
+  }
+
+  try {
+    const tReq = Date.now();
+    const req1 = fetchPage(sheet, 0, FIRST_FETCH, force);
+    const req2 = fetchPage(sheet, FIRST_FETCH, PAGE_FETCH, force);
+    req2.catch(function () {});
+    if (force || !state.metaOnce) { state.metaOnce = true; fetchMetaInfoBg(force, state.partReady === true && !force);
+      // 저장본(옛 재공 시리얼/협력사 재공)이 남아 있으면 최신값으로 즉시 갱신
+      setTimeout(() => { if (!state.erpFetching) fetchErpBg(false); if (!state.outWipFetching) fetchOutWipBg(false); }, 800);
+    }
+
+    let data = await req1;
+    state.lastMs = Date.now() - tReq;
+    state.lastSrc = data.src || '';
+    let stale = !!data.stale;
+    const full = {
+      sheet: sheet,
+      values: data.values.slice(),
+      totalRows: data.totalRows,
+      updatedAt: data.updatedAt,
+      loading: data.hasMore
+    };
+    let offset = FIRST_FETCH;
+    if (!hasView) {
+      full.indexed = buildIndex(full.values);
+      state.cache[sheet] = full;
+      if (tick) clearInterval(tick);
+      if (token === state.token) {
+        renderTable();
+        setTimeout(() => goToday(true), 20);
+        if (data.hasMore) $('progress').textContent = '전체 행 수신 중…';
+      }
+    }
+
+    if (data.hasMore) {
+      data = await req2;
+      stale = stale || !!data.stale;
+      for (let i = 1; i < data.values.length; i++) full.values.push(data.values[i]);
+      offset += PAGE_FETCH;
+      while (data.hasMore) {
+        data = await fetchPage(sheet, offset, PAGE_FETCH, force);
+        for (let i = 1; i < data.values.length; i++) full.values.push(data.values[i]);
+        offset += PAGE_FETCH;
+      }
+    }
+    full.loading = false;
+    full.indexed = buildIndex(full.values);
+
+    const errCnt = countSheetErrors(full.values);
+    const prev = state.cache[sheet];
+    const prevClean = prev && countSheetErrors(prev.values) === 0;
+
+    if (tick) clearInterval(tick);
+    if (token === state.token) {
+      $('progress').textContent = '';
+      lastSync = new Date();
+      const st = $('syncStamp'); if (st) st.textContent = fmtT(lastSync);
+
+      if (errCnt > 0) {
+        if (!prevClean) {
+          state.cache[sheet] = full;
+          renderTable();
+        } else {
+          updateMeta();
+        }
+        if ((retryCount || 0) < 2) {
+          setTimeout(() => load(sheet, true, true, (retryCount || 0) + 1, true), 3000);
+        }
+        return;
+      }
+
+      const same = hasView && isSameData(prev, full);
+      state.cache[sheet] = full;
+      if (!same) renderTable();
+      else updateMeta();
+
+      if (!same || Date.now() - state.snapAt > 600000) {
+        state.snapAt = Date.now();
+        saveSnapshot(full);
+      }
+
+      const willReload = stale && !force && !soft;
+      if (willReload) setTimeout(() => load(sheet, true, true, 0, true), 200);
+      else if (force && !soft) { fetchErpBg(true); fetchOutWipBg(true); }
+
+      if (!willReload) {
+        if (!state.erpMap && !state.erpFetching) setTimeout(() => fetchErpBg(false), 1200);
+        if (!state.outWipMap && !state.outWipFetching) setTimeout(() => fetchOutWipBg(false), 2600);
+      }
+    }
+  } catch (e) {
+    if (tick) clearInterval(tick);
+    if (token === state.token) {
+      $('progress').textContent = '';
+      if (hasView) { $('progress').textContent = '⚠ 동기화 지연: ' + e.message; return; }
+      $('wrap').innerHTML = '<div class="msg err">데이터를 불러오지 못했습니다.<br>' + esc(e.message) + '</div>';
+    }
+  } finally {
+    state.busy = false;
+  }
+}
+
+function isZeroStr(s) {
+  if (s === '0' || s === '(0)') return true;
+  if (/^-?[\d,.]+$/.test(s)) return Number(s.replace(/,/g, '')) === 0;
+  return false;
+}
+
+function parseCellNum(val) {
+  const s = String(val ?? '').trim();
+  if (!s || s === '-') return 0;
+  if (/^\(.*\)$/.test(s)) {
+    const n = Number(s.slice(1, -1).replace(/,/g, ''));
+    return isNaN(n) ? 0 : -n;
+  }
+  const n = Number(s.replace(/,/g, ''));
+  return isNaN(n) ? 0 : n;
+}
+
+function parseMarketGrade(gubun) {
+  const g = String(gubun || '');
+  const market = /국내/.test(g) ? '국내' : (/해외/.test(g) ? '해외' : '');
+  const grade = /recycle/i.test(g) ? 'RECYCLE' : (/A급|(^|[^A-Za-z])A([^A-Za-z]|$)/i.test(g) ? 'A' : '');
+  return { market, grade };
+}
+
+function fmtShortDate(h) {
+  const dm = String(h || '').match(/^\d{4}-(\d{2})-(\d{2})/);
+  return dm ? (parseInt(dm[1], 10) + '.' + parseInt(dm[2], 10)) : String(h || '');
+}
+
+function updateDashPanels(indexed, head, gi, todayCol) {
+  const bar = $('dashBar');
+  if (!bar) return;
+  if (gi < 0 || todayCol < 0 || !indexed || !indexed.length) {
+    bar.style.display = 'none';
+    return;
+  }
+
+  const todayLabel = fmtShortDate(head[todayCol]);
+  const endCol = Math.min(head.length - 1, todayCol + 7);
+  const endLabel = fmtShortDate(head[endCol]);
+
+  const blocks = [];
+  let curBlock = null;
+  for (let i = 0; i < indexed.length; i++) {
+    const item = indexed[i];
+    if (item.isFirst || !curBlock) {
+      curBlock = { pn: item.pn, nm: item.nm, items: [] };
+      blocks.push(curBlock);
+    }
+    curBlock.items.push(item);
+  }
+
+  const todayDelivs = [];
+  let totalDelivQty = 0;
+  const negBalItems = [];
+
+  for (let b = 0; b < blocks.length; b++) {
+    const blk = blocks[b];
+    const blockMarkets = new Set();
+    const blockGrades = new Set();
+    let balRow = null;
+
+    for (let j = 0; j < blk.items.length; j++) {
+      const it = blk.items[j];
+      const r = it.row;
+
+      if (/납품/.test(it.gubun)) {
+        const { market, grade } = parseMarketGrade(it.gubun);
+        const todayVal = parseCellNum(r[todayCol]);
+        if (todayVal > 0) {
+          totalDelivQty += todayVal;
+          todayDelivs.push({
+            pn: it.pn || blk.pn,
+            nm: it.nm || blk.nm,
+            market,
+            grade,
+            qty: todayVal,
+            qtyText: String(r[todayCol]).trim()
+          });
+        }
+        let hasAnyPlan = false;
+        for (let c = todayCol; c < r.length; c++) {
+          if (parseCellNum(r[c]) > 0) { hasAnyPlan = true; break; }
+        }
+        if (hasAnyPlan) {
+          if (market) blockMarkets.add(market);
+          if (grade) blockGrades.add(grade);
+        }
+      } else if (it.cat === 'bal') {
+        balRow = it;
+      }
+    }
+
+    if (balRow) {
+      const r = balRow.row;
+      let firstNegCol = -1;
+      let minNegVal = 0;
+      let minNegText = '';
+
+      for (let c = todayCol; c <= endCol; c++) {
+        const v = parseCellNum(r[c]);
+        if (v < 0) {
+          if (firstNegCol === -1) firstNegCol = c;
+          if (v < minNegVal) {
+            minNegVal = v;
+            minNegText = String(r[c]).trim();
+          }
+        }
+      }
+
+      if (minNegVal < 0) {
+        if (blockGrades.size === 0) {
+          blockGrades.add(/recycle/i.test(blk.nm) ? 'RECYCLE' : 'A');
+        }
+        negBalItems.push({
+          pn: blk.pn,
+          nm: blk.nm,
+          markets: [...blockMarkets],
+          grades: [...blockGrades],
+          firstDate: fmtShortDate(head[firstNegCol]),
+          valText: minNegText || ('(' + Math.abs(minNegVal).toLocaleString() + ')')
+        });
+      }
+    }
+  }
+
+  const renderTags = (markets, grades) => {
+    let t = '';
+    markets.forEach(m => {
+      t += '<span class="d-tag ' + (m === '국내' ? 'd-dom' : 'd-ov') + '">' + esc(m) + '</span>';
+    });
+    grades.forEach(g => {
+      t += '<span class="d-tag ' + (g === 'RECYCLE' ? 'd-rec' : 'd-a') + '">' + esc(g) + '</span>';
+    });
+    return t;
+  };
+
+  const box1ListHtml = todayDelivs.length
+    ? todayDelivs.map(d =>
+        '<div class="dash-item" data-pn="' + esc(d.pn) + '" title="' + esc(d.pn + ' · ' + d.nm) + '">' +
+          renderTags(d.market ? [d.market] : [], d.grade ? [d.grade] : []) +
+          '<span class="d-pn">' + esc(d.pn) + '</span>' +
+          '<span class="d-qty">' + esc(d.qtyText) + '개</span>' +
+        '</div>'
+      ).join('')
+    : '<div class="dash-empty">금일 납품 예정 품목이 없습니다.</div>';
+
+  const hasAlert = negBalItems.length > 0;
+  const box2ListHtml = hasAlert
+    ? negBalItems.map(d =>
+        '<div class="dash-item" data-pn="' + esc(d.pn) + '" title="' + esc(d.pn + ' · ' + d.nm + ' (' + d.firstDate + '~)') + '">' +
+          renderTags(d.markets, d.grades) +
+          '<span class="d-pn">' + esc(d.pn) + '</span>' +
+          '<span class="d-qty neg">' + esc(d.valText) + '개</span>' +
+        '</div>'
+      ).join('')
+    : '<div class="dash-empty">TODAY ~ +7일 내 Bal. 음수 항목이 없습니다.</div>';
+
+  bar.innerHTML =
+    '<div class="dash-box">' +
+      '<div class="dash-hd">' +
+        '<div class="dash-hd-left"><span class="dash-num">1</span><span>금일 납품 예정 (' + esc(todayLabel) + ')</span></div>' +
+        '<span class="dash-hd-sub"><b>' + todayDelivs.length + '</b>건 · 총 <b>' + totalDelivQty.toLocaleString() + '</b>개</span>' +
+      '</div>' +
+      '<div class="dash-list">' + box1ListHtml + '</div>' +
+    '</div>' +
+    '<div class="dash-box alert-box' + (hasAlert ? ' has-alert' : '') + '">' +
+      '<div class="dash-hd">' +
+        '<div class="dash-hd-left">' +
+          '<span class="dash-num">2</span>' +
+          '<span>TODAY ~ +7일 Bal. (' + esc(todayLabel) + '~' + esc(endLabel) + ')</span>' +
+          (hasAlert ? '<span class="dash-alert-badge">확인 필요</span>' : '<span class="dash-ok-badge">정상</span>') +
+        '</div>' +
+        '<span class="dash-hd-sub"><b>' + negBalItems.length + '</b>건</span>' +
+      '</div>' +
+      '<div class="dash-list">' + box2ListHtml + '</div>' +
+    '</div>';
+
+  bar.style.display = '';
+}
+
+function renderVirtualBody(forceRender) {
+  const tbody = $('tbody');
+  const ctx = state.ctx;
+  if (!tbody || !ctx) return;
+
+  const rows = state.filteredRows;
+  const total = rows.length;
+  if (total === 0) {
+    if (forceRender) {
+      tbody.innerHTML = '<tr><td colspan="' + ctx.cols.length + '" style="padding:36px;color:#64748b;border:none">조건에 맞는 행이 없습니다.</td></tr>';
+      state.vRange = { start: 0, end: 0 };
+      fixFreeze(ctx.freeze, true);
+    }
+    return;
+  }
+
+  const wrap = $('wrap');
+  const scrollTop = wrap.scrollTop;
+  const viewH = wrap.clientHeight || 800;
+
+  const start = Math.max(0, Math.floor(scrollTop / ROW_H) - V_BUFFER);
+  const end = Math.min(total, Math.ceil((scrollTop + viewH) / ROW_H) + V_BUFFER);
+
+  if (!forceRender && start === state.vRange.start && end === state.vRange.end) return;
+  state.vRange = { start, end };
+
+  const { cols, freeze, custIdx, pnIdx, gi, todayCol, singleCat, colDateKeys } = ctx;
+  const topH = start * ROW_H;
+  const bottomH = (total - end) * ROW_H;
+
+  let out = '';
+  if (topH > 0) {
+    out += '<tr class="v-spacer" style="height:' + topH + 'px"><td colspan="' + cols.length + '"></td></tr>';
+  }
+
+  for (let i = start; i < end; i++) {
+    const item = rows[i];
+    const r = item.row;
+    const isFirst = singleCat ? true : item.isFirst;
+    const cat = item.cat;
+    const isWipRow = cat === 'proc' || cat === 'wip' || cat === 'wipt' || cat === 'qa';
+    let stageTxt = '';
+    const isStage = STAGE_TO_TODAY && cat === 'wait' && todayCol >= 0;
+    if (isStage) {
+      let sum = 0;
+      for (let k2 = freeze; k2 < cols.length; k2++) sum += parseCellNum(r[cols[k2]]);
+      stageTxt = sum === 0 ? '' : (sum < 0 ? '(' + Math.abs(sum).toLocaleString() + ')' : sum.toLocaleString());
+    }
+
+    const rowCls = [
+      isFirst ? 'first' : '',
+      item.bulkType ? 'is-bulk' : '',
+      item.erp ? 'is-erp' : '',
+      item.outWip ? 'is-outwip' : '',
+      item.outPlan ? 'is-outplan' : '',
+      cat ? 'c-' + cat : ''
+    ].filter(Boolean).join(' ');
+
+    out += '<tr data-idx="' + i + '" class="' + rowCls + '">';
+    for (let k = 0; k < cols.length; k++) {
+      const c = cols[k];
+      let val = c === -1 ? item.cust : (c === custIdx ? item.cust : (r[c] ?? ''));
+      let cls = '';
+      if (k < freeze) {
+        cls = 'fz t';
+        if (k === freeze - 1) cls += ' fz-end';
+        const isCustCol = (c === -1 || c === custIdx);
+        if (c === gi) {
+          cls += ' cat';
+        } else if (isCustCol) {
+          cls += ' cust';
+          if (!singleCat && item.custPos === 'mid') cls += ' cust-merged-mid';
+          else if (!singleCat && item.custPos === 'bot') cls += ' cust-merged-bot';
+          else if (!singleCat && item.custPos === 'top') cls += ' cust-merged-top';
+        } else if (c === pnIdx) {
+          cls += ' pn';
+        } else {
+          cls += ' nm';
+        }
+        if (c !== gi && !isFirst && !isCustCol) cls += ' rep';
+        const pnAttr = c === pnIdx ? ' data-pn="' + esc(val) + '"' : '';
+        const showCustText = !isCustCol || singleCat || item.custPos === 'top' || item.custPos === 'single';
+        const cellText = showCustText ? esc(val) : '';
+        out += '<td class="' + cls + '" data-fz="' + k + '"' + pnAttr + '>' + cellText + '</td>';
+      } else {
+        if (c === todayCol) cls = 'today';
+        else if (todayCol >= 0 && c > todayCol && c <= todayCol + 7) cls = 'week';
+
+        if (isWipRow && todayCol >= 0 && c > todayCol) {
+          val = '';
+        } else if (isStage) {
+          val = (c === todayCol) ? stageTxt : '';
+        }
+
+        const s = String(val).trim();
+        const zero = s !== '' && s !== '-' && isZeroStr(s);
+        let disp;
+        if (zero || s === '' || s === '-') {
+          cls += ' z';
+          disp = '';
+        } else if (s.charCodeAt(0) === 40 || s.charCodeAt(0) === 45) {
+          cls += ' n';
+          disp = esc(val);
+        } else {
+          cls += ' pos';
+          disp = esc(val);
+        }
+        const dk = colDateKeys && colDateKeys[c] ? colDateKeys[c] : '';
+        const dkAttr = dk ? ' data-date="' + esc(dk) + '"' : '';
+        out += '<td data-col="' + c + '"' + dkAttr + (cls ? ' class="' + cls.trim() + '"' : '') + '>' + disp + '</td>';
+      }
+    }
+    out += '</tr>';
+  }
+
+  if (bottomH > 0) {
+    out += '<tr class="v-spacer" style="height:' + bottomH + 'px"><td colspan="' + cols.length + '"></td></tr>';
+  }
+
+  tbody.innerHTML = out;
+  fixFreeze(freeze, false);
+}
+
+function applyFilter(resetScroll) {
+  const d = state.cache[state.sheet];
+  if (!d || !d.indexed) return;
+
+  const q = state.q.trim().toLowerCase();
+  const hasCat = !!state.catFilter;
+
+  const rows = d.indexed.filter(item => {
+    if (hasCat && item.cat !== state.catFilter) return false;
+    if (!q) return true;
+    return item.q.includes(q);
+  });
+  state.filteredRows = rows;
+  if (state.ctx) {
+    state.ctx.singleCat = hasCat;
+  }
+
+  document.querySelectorAll('#legend .chip[data-cat]').forEach(el => {
+    el.classList.toggle('active', el.dataset.cat === state.catFilter);
+  });
+
+  const shownEl = $('shownCount');
+  if (shownEl) shownEl.textContent = rows.length.toLocaleString();
+
+  if (resetScroll) $('wrap').scrollTop = 0;
+  renderVirtualBody(true);
+}
+
+function renderTable() {
+  const d = state.cache[state.sheet];
+  if (!d) return;
+  const v = d.values || [];
+  if (!v.length) { $('wrap').innerHTML = '<div class="msg">표시할 데이터가 없습니다.</div>'; $('meta').textContent = ''; return; }
+  if (!d.indexed) d.indexed = buildIndex(v);
+
+  const head = v[0];
+  const indexed = d.indexed;
+  const { custIdx, pnIdx, gi } = detectLayout(head);
+
+  const freezeLimit = gi >= 0 ? gi + 1 : Math.min(4, head.length);
+  const cols = [];
+  if (custIdx < 0) cols.push(-1);
+  for (let c = 0; c < head.length; c++) {
+    if (c > 0 && c <= freezeLimit && String(head[c]).trim() === String(head[c - 1]).trim()) continue;
+    cols.push(c);
+  }
+  const freeze = cols.filter(c => c === -1 || c <= gi).length || Math.min(4, cols.length);
+
+  const colDateKeys = new Array(head.length);
+  for (let c = 0; c < head.length; c++) {
+    colDateKeys[c] = parseDateKeyFromHeader(head[c]);
+  }
+
+  const td = todayStr();
+  const todayCol = head.findIndex(h => String(h).startsWith(td));
+  if ($('today')) $('today').style.display = todayCol >= 0 ? '' : 'none';
+
+  updateDashPanels(indexed, head, gi, todayCol);
+
+  const chipsEl = $('legendChips');
+  const weekEl = $('legendWeek');
+  if (chipsEl) {
+    chipsEl.innerHTML = gi >= 0 ? [
+      ['deliv', '납품 계획',  '#fecaca'],
+      ['plan',  '계획',      '#bfdbfe'],
+      ['proc',  '재공(가공)', '#a5f3fc'],
+      ['wip',   '외주 재공',  '#e0e7ff'],
+      ['wipt',  '재공 Total','#ede9fe'],
+      ['qa',    '품질',      '#fce7f3'],
+      ['wait',  '공정/대기',  '#dcfce7'],
+      ['ship',  '출하',      '#a7f3d0'],
+      ['bal',   'Bal.',      '#86efac']
+    ].map(x =>
+      '<span class="chip' + (state.catFilter === x[0] ? ' active' : '') + '" data-cat="' + x[0] + '">' +
+      '<i class="swatch" style="background:' + x[2] + '"></i>' + x[1] + '</span>'
+    ).join('') : '';
+  }
+  if (weekEl) {
+    weekEl.innerHTML = gi >= 0
+      ? '<span class="chip" style="background:#fefce8;cursor:default">금주 (+1주)</span>'
+      : '';
+  }
+
+  let row1 = '<tr>';
+  let row2 = '<tr>';
+  cols.forEach((c, k) => {
+    const isFz = k < freeze;
+    const isFzEnd = k === freeze - 1;
+    const isToday = c >= 0 && c === todayCol;
+    const isWeek = c >= 0 && todayCol >= 0 && c > todayCol && c <= todayCol + 7;
+    const titleStr = c === -1 ? '고객사' : (String(head[c] || '').trim() || (c === custIdx ? '고객사' : ''));
+    const dm = c >= 0 ? String(head[c]).match(/^\d{4}-(\d{2})-(\d{2})\((.)\)/) : null;
+    const wk = dm ? (dm[3] === '토' ? ' sat' : dm[3] === '일' ? ' sun' : '') : '';
+
+    if (dm && !isFz) {
+      const cls1 = [isToday ? 'today' : '', isWeek ? 'week' : ''].join(' ').trim();
+      const cls2 = [isToday ? 'today' : '', isWeek ? 'week' : '', wk.trim()].join(' ').trim();
+      row1 += '<th' + (cls1 ? ' class="' + cls1 + '"' : '') + '>' + parseInt(dm[1], 10) + '. ' + parseInt(dm[2], 10) + '</th>';
+      row2 += '<th' + (cls2 ? ' class="' + cls2 + '"' : '') + '>' + dm[3] + '</th>';
+    } else {
+      const cls = [isFz ? 'fz t' : '', isFzEnd ? 'fz-end' : '', isToday ? 'today' : '', isWeek ? 'week' : ''].join(' ').trim();
+      row1 += '<th rowspan="2"' + (cls ? ' class="' + cls + '"' : '') + (isFz ? ' data-fz="' + k + '"' : '') + '>' + esc(titleStr) + '</th>';
+    }
+  });
+  row1 += '</tr>';
+  row2 += '</tr>';
+
+  state.ctx = {
+    cols,
+    freeze,
+    custIdx,
+    fzWidths: calcFzWidths(indexed, head, cols, freeze, custIdx, pnIdx, gi),
+    pnIdx,
+    gi,
+    todayCol,
+    colDateKeys,
+    singleCat: !!state.catFilter
+  };
+  state.lastFzCss = '';
+
+  const _w = $('wrap'), _sl = _w.scrollLeft, _st = _w.scrollTop;
+  _w.innerHTML = '<table><thead>' + row1 + row2 + '</thead><tbody id="tbody"></tbody></table>';
+  _w.scrollLeft = _sl;
+  _w.scrollTop = _st;
+
+  updateMeta();
+  applyFilter(false);
+}
+
+function fixFreeze(freeze, forceWrite) {
+  const styleEl = $('fz-style');
+  if (!freeze) {
+    if (styleEl) styleEl.textContent = '';
+    state.lastFzCss = '';
+    return;
+  }
+  const ctx = state.ctx;
+  let wCss = '';
+  if (ctx && ctx.fzWidths) {
+    ctx.fzWidths.forEach((w, k) => {
+      if (w > 0) wCss += `[data-fz="${k}"]{width:${w}px;min-width:${w}px;max-width:${w}px;}`;
+    });
+  }
+  if (wCss && styleEl && !styleEl.textContent.startsWith(wCss)) {
+    styleEl.textContent = wCss + state.lastFzCss;
+  }
+  const wrap = $('wrap');
+  const ths = wrap.querySelectorAll('th[data-fz]');
+  let left = 0, css = wCss;
+  ths.forEach((th, i) => {
+    css += `[data-fz="${i}"]{left:${left}px;}`;
+    left += th.offsetWidth;
+  });
+  if (forceWrite || css !== state.lastFzCss) {
+    state.lastFzCss = css;
+    if (styleEl) styleEl.textContent = css;
+  }
+}
+
+function goToday(instant) {
+  const th = $('wrap').querySelector('th.today');
+  if (!th) return;
+  const wrap = $('wrap');
+  const frozen = [...wrap.querySelectorAll('th[data-fz]')].reduce((a, e) => a + e.offsetWidth, 0);
+  wrap.scrollTo({ left: Math.max(0, th.offsetLeft - frozen), behavior: instant ? 'auto' : 'smooth' });
+}
+
+function isNumberCell(td) {
+  if (!td || td.classList.contains('fz')) return false;
+  if (!td.classList.contains('pos') && !td.classList.contains('n')) return false;
+  return String(td.textContent || '').trim() !== '';
+}
+
+function isTodayNumberCell(td) {
+  if (!isNumberCell(td) || !state.ctx || state.ctx.todayCol < 0) return false;
+  return Number(td.dataset.col) === state.ctx.todayCol;
+}
+
+const tipEl = $('pnTip');
+let activeTip = null;
+let lastMouse = { x: 0, y: 0 };
+
+function positionTip(e) {
+  if (e) { lastMouse.x = e.clientX; lastMouse.y = e.clientY; }
+  if (!tipEl || tipEl.style.display === 'none') return;
+  const pad = 14;
+  const rect = tipEl.getBoundingClientRect();
+  let x = lastMouse.x + pad;
+  let y = lastMouse.y + pad;
+  if (x + rect.width > window.innerWidth - 8) x = Math.max(8, lastMouse.x - rect.width - pad);
+  if (y + rect.height > window.innerHeight - 8) y = Math.max(8, lastMouse.y - rect.height - pad);
+  tipEl.style.transform = `translate3d(${x}px, ${y}px, 0)`;
+}
+
+function showPartTip(pn, e) {
+  const cleanPn = String(pn || '').trim();
+  if (!cleanPn) { hideTip(); return; }
+  if (state.partReady !== true && !state.metaFetching) {
+    setTimeout(() => fetchMetaInfoBg(true), 0);
+  }
+  const match = getPartMatch(cleanPn);
+  const srcName = state.partInfo.sheetName || '공정진행';
+  const gTitle = state.partInfo.gTitle || '외경';
+  const hTitle = state.partInfo.hTitle || '두께';
+
+  let bodyHtml = '';
+  if (match) {
+    const gVal = match[0] !== '' && match[0] != null ? match[0] : '-';
+    const hVal = match[1] !== '' && match[1] != null ? match[1] : '-';
+    bodyHtml =
+      '<div class="pn-tip-grid">' +
+        '<div class="pn-tip-box"><span class="pn-tip-lbl">' + esc(gTitle) + '</span><span class="pn-tip-val">' + esc(gVal) + '</span></div>' +
+        '<div class="pn-tip-box"><span class="pn-tip-lbl">' + esc(hTitle) + '</span><span class="pn-tip-val">' + esc(hVal) + '</span></div>' +
+      '</div>';
+  } else if (state.partReady === 'need_deploy') {
+    bodyHtml = '<div class="pn-tip-warn">Apps Script [새 버전] 배포 후 새로고침해 주세요.</div>';
+  } else if (state.partReady === 'err') {
+    bodyHtml = '<div class="pn-tip-warn">조회 지연 — 상단 [새로고침]을 눌러 주세요.</div>';
+  } else if (state.partReady !== true) {
+    bodyHtml = '<div class="pn-tip-empty">외경·두께 정보 불러오는 중…</div>';
+  } else if (state.partInfo.error) {
+    bodyHtml = '<div class="pn-tip-warn">조회 오류: ' + esc(state.partInfo.error) + '</div>';
+  } else {
+    bodyHtml = '<div class="pn-tip-empty">일치하는 품번(C열) 데이터가 없습니다.</div>';
+  }
+
+  tipEl.classList.remove('bulk-wait', 'bulk-clean', 'wip-tip', 'outplan-tip');
+  tipEl.innerHTML =
+    '<div class="pn-tip-head">' +
+      '<span class="pn-tip-code">' + esc(cleanPn) + '</span>' +
+      '<span class="pn-tip-src">' + esc(srcName) + '</span>' +
+    '</div>' + bodyHtml;
+  tipEl.style.display = 'block';
+  positionTip(e);
+}
+
+function showWipTip(item, e) {
+  if (!item) { hideTip(); return; }
+  const isOutWip = !!item.outWip;
+  const pn = String(item.pn || '').trim();
+  const srcName = isOutWip ? (state.outWipInfo.sheetName || '협력사 재공') : (state.erpInfo.sheetName || '정삭 재공 시리얼');
+  const list = isOutWip ? getOutWipMatch(item) : getErpMatch(item);
+
+  let bodyHtml = '';
+  if (list) {
+    if (isOutWip) { if (!state.outWipFetching && Date.now() - state.outWipAt > 60000) setTimeout(() => fetchOutWipBg(false), 0); }
+    else if (!state.erpFetching && Date.now() - state.erpAt > 60000) setTimeout(() => fetchErpBg(false), 0);
+    if (isOutWip) {
+      const totalQty = list.reduce((acc, pair) => acc + (Number(pair[1]) || 0), 0);
+      const preview = list.length
+        ? list.map(pair => pair[0] + ' ' + Number(pair[1]).toLocaleString() + '개').join(' · ')
+        : '일치하는 협력사 재공 없음';
+      bodyHtml =
+        '<div class="pn-tip-sub">총 <b>' + totalQty.toLocaleString() + '개</b> (' + list.length + '개 협력사)</div>' +
+        '<div class="pn-tip-extra">' +
+          '<div class="pn-tip-extra-lbl">협력사별 외주 재공</div>' +
+          '<div class="pn-tip-sn-preview">' + esc(preview) + '</div>' +
+        '</div>' +
+        '<div class="pn-tip-hint">클릭하면 상세 보기 및 복사가 열립니다.</div>';
+    } else {
+      const preview = list.length
+        ? list.slice(0, 14).join(', ') + (list.length > 14 ? ' 외 ' + (list.length - 14) + '건' : '')
+        : '일치하는 시리얼 없음';
+      bodyHtml =
+        '<div class="pn-tip-sub">정삭 재공 시리얼 <b>' + list.length.toLocaleString() + '건</b></div>' +
+        '<div class="pn-tip-extra">' +
+          '<div class="pn-tip-extra-lbl">시리얼 목록</div>' +
+          '<div class="pn-tip-sn-preview">' + esc(preview) + '</div>' +
+        '</div>' +
+        '<div class="pn-tip-hint">클릭하면 시리얼 전체 나열 및 복사가 열립니다.</div>';
+    }
+  } else {
+    if (isOutWip && !state.outWipFetching) setTimeout(() => fetchOutWipBg(false), 0);
+    if (!isOutWip && !state.erpFetching) setTimeout(() => fetchErpBg(false), 0);
+    bodyHtml = '<div class="pn-tip-empty">' + esc(srcName) + ' 정보 불러오는 중…</div>';
+  }
+
+  tipEl.classList.remove('bulk-wait', 'bulk-clean', 'wip-tip', 'outplan-tip');
+  tipEl.classList.add('wip-tip');
+  tipEl.innerHTML =
+    '<div class="pn-tip-head">' +
+      '<span class="pn-tip-code">' + esc(pn) + ' (' + esc(item.gubun || '재공') + ')</span>' +
+      '<span class="pn-tip-src">' + esc(srcName) + '</span>' +
+    '</div>' + bodyHtml;
+  tipEl.style.display = 'block';
+  positionTip(e);
+}
+
+function showOutPlanTip(item, dateKey, e) {
+  if (!item) { hideTip(); return; }
+  const pn = String(item.pn || '').trim();
+  const srcName = (state.outWipInfo && state.outWipInfo.sheetName) || '협력사 재공';
+  const list = getOutPlanMatch(item, dateKey);
+
+  let bodyHtml = '';
+  if (list) {
+    const totalQty = list.reduce((acc, pair) => acc + (Number(pair[1]) || 0), 0);
+    const preview = list.length
+      ? list.map(pair => pair[0] + ' ' + Number(pair[1]).toLocaleString() + '개').join(' · ')
+      : (dateKey ? esc(dateKey) + ' 입고일 매칭 내역 없음' : '일자 정보 없음');
+    bodyHtml =
+      '<div class="pn-tip-sub">' + (dateKey ? esc(dateKey) + ' · ' : '') + '총 <b>' + totalQty.toLocaleString() + '개</b></div>' +
+      '<div class="pn-tip-extra">' +
+        '<div class="pn-tip-extra-lbl">협력사별 외주 입고 계획 (' + esc(dateKey || '-') + ')</div>' +
+        '<div class="pn-tip-sn-preview">' + esc(preview) + '</div>' +
+      '</div>' +
+      '<div class="pn-tip-hint">클릭하면 상세 보기 및 복사가 열립니다.</div>';
+  } else {
+    if (!state.outWipFetching) setTimeout(() => fetchOutWipBg(false), 0);
+    bodyHtml = '<div class="pn-tip-empty">' + esc(srcName) + ' 정보 불러오는 중…</div>';
+  }
+
+  tipEl.classList.remove('bulk-wait', 'bulk-clean', 'wip-tip', 'outplan-tip');
+  tipEl.classList.add('outplan-tip');
+  tipEl.innerHTML =
+    '<div class="pn-tip-head">' +
+      '<span class="pn-tip-code">' + esc(pn) + (dateKey ? ' ' + esc(dateKey) : '') + '</span>' +
+      '<span class="pn-tip-src">' + esc(srcName) + '</span>' +
+    '</div>' + bodyHtml;
+  tipEl.style.display = 'block';
+  positionTip(e);
+}
+
+function showBulkTip(item, e) {
+  if (!item || !item.bulkType) { hideTip(); return; }
+  const isClean = item.bulkType === 'clean';
+  const typeLabel = isClean ? '세정' : '출하대기';
+  const match = getBulkMatch(item);
+  const serials = getBulkSerials(item);
+  const cleanDates = isClean ? getBulkCleanDates(item) : [];
+  const srcName = state.bulkInfo.sheetName || 'BULK RAW';
+  const cleanPn = normPn(item.pn).toUpperCase();
+  const lrLabel = cleanPn.length >= 7 ? (cleanPn.slice(0, 3) + ' · ' + cleanPn.slice(-4)) : cleanPn;
+
+  let bodyHtml = '';
+  if (match) {
+    const kfCnt = Number(match[0]) || 0;
+    const rfCnt = Number(match[1]) || 0;
+    const totalRows = isClean ? (Number(state.bulkInfo.cleanRows) || 0) : (Number(state.bulkInfo.waitRows) || 0);
+    const mCol = state.bulkInfo.matchedCol || 'P';
+    const dbg = state.bulkInfo.debug || '';
+
+    let extraHtml = '';
+    if (isClean) {
+      const totalOut = cleanDates.reduce((acc, p) => acc + p[1], 0);
+      const datePills = cleanDates.length
+        ? cleanDates.map(p => '<span class="pn-tip-d-pill">' + esc(p[0]) + ': ' + p[1].toLocaleString() + '개</span>').join('')
+        : '<span class="pn-tip-empty">Z열 출고 날짜 기록 없음</span>';
+      extraHtml +=
+        '<div class="pn-tip-extra">' +
+          '<div class="pn-tip-extra-lbl">세정 Z열 날짜별 출고 (총 ' + totalOut.toLocaleString() + '개)</div>' +
+          '<div class="pn-tip-dates">' + datePills + '</div>' +
+        '</div>';
+    }
+
+    const snPreview = serials.length
+      ? serials.slice(0, 12).join(', ') + (serials.length > 12 ? ' 외 ' + (serials.length - 12) + '건' : '')
+      : '일치하는 I열 시리얼 없음';
+
+    extraHtml +=
+      '<div class="pn-tip-extra">' +
+        '<div class="pn-tip-extra-lbl">I열 시리얼 (' + serials.length.toLocaleString() + '건)</div>' +
+        '<div class="pn-tip-sn-preview">' + esc(snPreview) + '</div>' +
+      '</div>' +
+      '<div class="pn-tip-hint">클릭하면 시리얼 전체 나열 및 복붙 팝업이 열립니다.</div>';
+
+    bodyHtml =
+      '<div class="pn-tip-sub">' + esc(mCol) + '열=' + typeLabel + ' · T열 포함: <b>' + esc(lrLabel) + '</b></div>' +
+      '<div class="pn-tip-grid">' +
+        '<div class="pn-tip-box"><span class="pn-tip-lbl">KF ' + typeLabel + '</span><span class="pn-tip-val kf">' + kfCnt.toLocaleString() + '개</span></div>' +
+        '<div class="pn-tip-box"><span class="pn-tip-lbl">RF ' + typeLabel + '</span><span class="pn-tip-val rf">' + rfCnt.toLocaleString() + '개</span></div>' +
+      '</div>' +
+      extraHtml +
+      (state.bulkInfo.error ? '<div class="pn-tip-warn" style="margin-top:4px">오류: ' + esc(state.bulkInfo.error) + '</div>' :
+       (totalRows === 0 && dbg ? '<div class="pn-tip-empty" style="margin-top:4px">' + esc(dbg) + '</div>' : ''));
+  } else if (state.bulkReady === 'need_deploy') {
+    bodyHtml = '<div class="pn-tip-warn">Apps Script [새 버전] 배포 후 새로고침해 주세요.</div>';
+  } else if (state.bulkReady === 'err') {
+    bodyHtml = '<div class="pn-tip-warn">조회 지연 — 상단 [새로고침]을 눌러 주세요.</div>';
+  } else if (!state.bulkReady) {
+    bodyHtml = '<div class="pn-tip-empty">BULK RAW 정보 불러오는 중…</div>';
+  }
+
+  tipEl.classList.remove('bulk-wait', 'bulk-clean', 'wip-tip', 'outplan-tip');
+  tipEl.classList.add(isClean ? 'bulk-clean' : 'bulk-wait');
+  tipEl.innerHTML =
+    '<div class="pn-tip-head">' +
+      '<span class="pn-tip-code">' + esc(cleanPn) + ' (' + typeLabel + ')</span>' +
+      '<span class="pn-tip-src">' + esc(srcName) + '</span>' +
+    '</div>' + bodyHtml;
+  tipEl.style.display = 'block';
+  positionTip(e);
+}
+
+const erpPopEl = $('erpPop');
+let erpPopItem = null;
+let erpPopMode = 'wip';
+let erpPopDateKey = '';
+let erpPopPos = { x: 0, y: 0 };
+
+function placePopAt(x0, y0) {
+  erpPopEl.style.display = 'block';
+  const rect = erpPopEl.getBoundingClientRect();
+  let x = x0 + 12, y = y0 + 12;
+  if (x + rect.width > window.innerWidth - 8) x = Math.max(8, x0 - rect.width - 12);
+  if (y + rect.height > window.innerHeight - 8) y = Math.max(8, y0 - rect.height - 12);
+  erpPopEl.style.transform = 'translate3d(' + x + 'px,' + y + 'px,0)';
+}
+
+function showOutPlanPop(item, dateKey, e) {
+  if (!item) return;
+  erpPopItem = item;
+  erpPopMode = 'outplan';
+  erpPopDateKey = dateKey || '';
+  if (e) { erpPopPos.x = e.clientX; erpPopPos.y = e.clientY; }
+
+  const pn = String(item.pn || '').trim();
+  const info = state.outWipInfo || {};
+  const list = getOutPlanMatch(item, erpPopDateKey);
+
+  let body = '';
+  let hasList = false;
+  if (list) {
+    hasList = true;
+    const totalQty = list.reduce((acc, pair) => acc + (Number(pair[1]) || 0), 0);
+    const dLbl = erpPopDateKey ? (' (' + erpPopDateKey + ')') : '';
+    const chips = list.length
+      ? '<div class="erp-sn-list wk">' + list.map(pair =>
+          '<span class="erp-sn">' + esc(pair[0]) + '<span class="erp-vd-cnt"> ' + Number(pair[1]).toLocaleString() + '개</span></span>'
+        ).join('') + '</div>'
+      : '<div class="erp-sn-none">' + esc(erpPopDateKey || '해당 일자') + ' 입고일 매칭 내역이 없습니다.</div>';
+    body =
+      '<div class="erp-sec"><div class="erp-sec-hd"><span>협력사별 외주 입고 계획' + esc(dLbl) + '</span><b class="wk">총 ' + totalQty.toLocaleString() + '개</b></div>' + chips + '</div>' +
+      '<div class="erp-pop-note">협력사 재공 시트 B열(품번) · D열(입고일) · 4행(일자=' + esc(erpPopDateKey || '-') + ') · A열(협력사)별 집계</div>';
+  } else if (state.outWipReady === 'need_deploy') {
+    body = '<div class="pn-tip-warn">Apps Script [새 버전] 배포 후 새로고침해 주세요.</div>';
+  } else if (state.outWipReady === 'err' && !state.outWipFetching) {
+    body = '<div class="pn-tip-warn">조회 실패 <button class="erp-btn" id="erpRetry">다시 시도</button></div>';
+  } else {
+    if (!state.outWipFetching) setTimeout(() => fetchOutWipBg(false), 0);
+    body = '<div class="pn-tip-empty">협력사 재공 조회 중… <b id="erpSec">0</b>초</div>';
+  }
+
+  const copyBar = hasList ?
+    '<div class="erp-pop-actions"><button class="erp-btn primary" id="erpCopy">복사하기</button><button class="erp-btn" id="erpCopySn">수량만 복사</button><button class="erp-btn" id="erpCopyPn">품번만 복사</button><span class="erp-copied" id="erpCopied"></span></div>' : '';
+
+  erpPopEl.classList.remove('bulk-wait', 'bulk-clean');
+  erpPopEl.classList.add('outplan-pop');
+  erpPopEl.innerHTML =
+    '<div class="pn-tip-head">' +
+      '<span class="pn-tip-code">' + esc(pn) + (erpPopDateKey ? ' ' + esc(erpPopDateKey) : '') + '</span>' +
+      '<span><span class="pn-tip-src">' + esc(info.sheetName || '협력사 재공') + '</span> <button class="erp-pop-x" id="erpPopX" title="닫기">✕</button></span>' +
+    '</div>' +
+    '<div class="pn-tip-sub">' + esc(item.nm || '') + (item.gubun ? ' · ' + esc(item.gubun) : '') + '</div>' + body + copyBar;
+
+  placePopAt(erpPopPos.x, erpPopPos.y);
+}
+
+function showBulkPop(item, e, mode) {
+  if (!item || !item.bulkType) return;
+  erpPopItem = item;
+  erpPopMode = mode || (item.bulkType === 'clean' ? 'bulk-clean' : 'bulk-wait');
+  if (e) { erpPopPos.x = e.clientX; erpPopPos.y = e.clientY; }
+
+  const isClean = item.bulkType === 'clean';
+  const typeLabel = isClean ? '세정' : '출하대기';
+  const cleanPn = normPn(item.pn).toUpperCase();
+  const lrLabel = cleanPn.length >= 7 ? (cleanPn.slice(0, 3) + ' · ' + cleanPn.slice(-4)) : cleanPn;
+  const serials = getBulkSerials(item);
+  const cleanDates = isClean ? getBulkCleanDates(item) : [];
+  const totalOut = cleanDates.reduce((acc, p) => acc + p[1], 0);
+  const match = getBulkMatch(item) || [0, 0];
+
+  let dateSecHtml = '';
+  if (isClean) {
+    const chips = cleanDates.length
+      ? cleanDates.map(p =>
+          '<span class="erp-date-chip">' + esc(p[0]) + ' <b>' + Number(p[1]).toLocaleString() + '개</b></span>'
+        ).join('')
+      : '<div class="erp-sn-none">Z열 출고 날짜 데이터가 없습니다.</div>';
+    dateSecHtml =
+      '<div class="erp-sec">' +
+        '<div class="erp-sec-hd"><span>세정 출고 일자별 수량 (Z열)</span><b class="cl">총 ' + totalOut.toLocaleString() + '개</b></div>' +
+        '<div class="erp-date-grid">' + chips + '</div>' +
+      '</div>';
+  }
+
+  const snChips = serials.length
+    ? '<div class="erp-sn-list ' + (isClean ? 'cl' : 'wt') + '">' +
+        serials.map(sn => '<span class="erp-sn">' + esc(sn) + '</span>').join('') +
+      '</div>'
+    : '<div class="erp-sn-none">일치하는 I열 시리얼이 없습니다.</div>';
+
+  const body =
+    '<div class="pn-tip-sub" style="margin-bottom:4px">T열 포함: <b>' + esc(lrLabel) + '</b> · KF ' + match[0].toLocaleString() + '개 / RF ' + match[1].toLocaleString() + '개</div>' +
+    dateSecHtml +
+    '<div class="erp-sec">' +
+      '<div class="erp-sec-hd"><span>시리얼 목록 (I열)</span><b class="' + (isClean ? 'cl' : 'wt') + '">' + serials.length.toLocaleString() + '건</b></div>' +
+      snChips +
+    '</div>' +
+    '<div class="erp-pop-actions">' +
+      '<button class="erp-btn ' + (isClean ? 'clean-pri' : 'wait-pri') + '" id="erpCopySn">시리얼만 복사</button>' +
+      '<button class="erp-btn" id="erpCopy">전체 요약 복사</button>' +
+      '<button class="erp-btn" id="erpCopyPn">품번만 복사</button>' +
+      '<span class="erp-copied" id="erpCopied"></span>' +
+    '</div>' +
+    '<div class="erp-pop-note">BULK RAW 시트 · P열=' + esc(typeLabel) + ' · I열 시리얼' + (isClean ? ' · Z열 출고일' : '') + '</div>';
+
+  erpPopEl.classList.remove('bulk-wait', 'bulk-clean', 'outplan-pop');
+  erpPopEl.classList.add(isClean ? 'bulk-clean' : 'bulk-wait');
+  erpPopEl.innerHTML =
+    '<div class="pn-tip-head">' +
+      '<span class="pn-tip-code">' + esc(cleanPn) + ' · ' + esc(typeLabel) + '</span>' +
+      '<span><span class="pn-tip-src">' + esc(state.bulkInfo.sheetName || 'BULK RAW') + '</span> <button class="erp-pop-x" id="erpPopX" title="닫기">✕</button></span>' +
+    '</div>' +
+    '<div class="pn-tip-sub">' + esc(item.nm || '') + '</div>' + body;
+
+  placePopAt(erpPopPos.x, erpPopPos.y);
+}
+
+function showErpPop(item, e, mode) {
+  if (!item) return;
+  erpPopItem = item;
+  erpPopMode = mode || (item.outWip ? 'outwip' : 'wip');
+  if (e) { erpPopPos.x = e.clientX; erpPopPos.y = e.clientY; }
+  const pn = String(item.pn || '').trim();
+  const isOutWip = erpPopMode === 'outwip';
+  const info = isOutWip ? (state.outWipInfo || {}) : (state.erpInfo || {});
+  const readyState = isOutWip ? state.outWipReady : state.erpReady;
+  const fetchingState = isOutWip ? state.outWipFetching : state.erpFetching;
+  const list = isOutWip ? getOutWipMatch(item) : getErpMatch(item);
+
+  let body = '';
+  let hasList = false;
+  if (list) {
+    hasList = true;
+    if (isOutWip) {
+      const totalQty = list.reduce((acc, pair) => acc + (Number(pair[1]) || 0), 0);
+      const tLbl = info.todayLabel ? (' (' + info.todayLabel + ')') : '';
+      const chips = list.length
+        ? '<div class="erp-sn-list wk">' + list.map(pair =>
+            '<span class="erp-sn">' + esc(pair[0]) + '<span class="erp-vd-cnt"> ' + Number(pair[1]).toLocaleString() + '개</span></span>'
+          ).join('') + '</div>'
+        : '<div class="erp-sn-none">일치하는 협력사 재공이 없습니다.</div>';
+      body =
+        '<div class="erp-sec"><div class="erp-sec-hd"><span>협력사별 외주 재공 수량' + esc(tLbl) + '</span><b class="wk">총 ' + totalQty.toLocaleString() + '개</b></div>' + chips + '</div>' +
+        '<div class="erp-pop-note">협력사 재공 시트 B열(도면번호) · 상태=외주 재공 · A열(협력사)별 집계 · 서버 ' + esc(state.build || '확인 중') + '</div>' +
+        (info.error ? '<div class="pn-tip-warn" style="margin-top:4px">오류: ' + esc(info.error) + '</div>' :
+         (Number(info.totalRows) === 0 && info.debug ? '<div class="pn-tip-empty" style="margin-top:4px">' + esc(info.debug) + '</div>' : ''));
+    } else {
+      const chips = list.length
+        ? '<div class="erp-sn-list wk">' + list.map(s => '<span class="erp-sn">' + esc(s) + '</span>').join('') + '</div>'
+        : '<div class="erp-sn-none">일치하는 시리얼이 없습니다.</div>';
+      body =
+        '<div class="erp-sec"><div class="erp-sec-hd"><span>정삭 재공 시리얼 (H열)</span><b class="wk">' + list.length.toLocaleString() + '건</b></div>' + chips + '</div>' +
+        '<div class="erp-pop-note">정삭 재공 시리얼 시트 A열(품번) 일치 · H열 시리얼</div>' +
+        (info.error ? '<div class="pn-tip-warn" style="margin-top:4px">오류: ' + esc(info.error) + '</div>' :
+         (Number(info.totalRows) === 0 && info.debug ? '<div class="pn-tip-empty" style="margin-top:4px">' + esc(info.debug) + '</div>' : ''));
+    }
+  } else if (readyState === 'need_deploy') {
+    body = '<div class="pn-tip-warn">Apps Script [새 버전] 배포 후 새로고침해 주세요.</div>';
+  } else if (readyState === 'err' && !fetchingState) {
+    body = '<div class="pn-tip-warn">조회 실패 <button class="erp-btn" id="erpRetry">다시 시도</button></div>';
+  } else {
+    if (!fetchingState) setTimeout(() => (isOutWip ? fetchOutWipBg(false) : fetchErpBg(false)), 0);
+    body = '<div class="pn-tip-empty">' + esc(isOutWip ? '협력사 재공' : '정삭 재공 시리얼') + ' 조회 중… <b id="erpSec">0</b>초</div>';
+  }
+
+  if (hasList && fetchingState) body += '<div class="erp-pop-note">최신 데이터 확인 중…</div>';
+
+  const copyBar = hasList ?
+    '<div class="erp-pop-actions"><button class="erp-btn primary" id="erpCopy">복사하기</button><button class="erp-btn" id="erpCopySn">' + (isOutWip ? '수량만 복사' : '시리얼만 복사') + '</button><button class="erp-btn" id="erpCopyPn">품번만 복사</button><span class="erp-copied" id="erpCopied"></span></div>' : '';
+
+  erpPopEl.classList.remove('bulk-wait', 'bulk-clean', 'outplan-pop');
+  erpPopEl.innerHTML =
+    '<div class="pn-tip-head">' +
+      '<span class="pn-tip-code">' + esc(pn) + '</span>' +
+      '<span><span class="pn-tip-src">' + esc(info.sheetName || (isOutWip ? '협력사 재공' : '정삭 재공 시리얼')) + '</span> <button class="erp-pop-x" id="erpPopX" title="닫기">✕</button></span>' +
+    '</div>' +
+    '<div class="pn-tip-sub">' + esc(item.nm || '') + (item.gubun ? ' · ' + esc(item.gubun) : '') + '</div>' + body + copyBar;
+
+  placePopAt(erpPopPos.x, erpPopPos.y);
+}
+
+function erpCopyText(item) {
+  if (erpPopMode === 'bulk-wait' || erpPopMode === 'bulk-clean') {
+    const isClean = item.bulkType === 'clean';
+    const sns = getBulkSerials(item);
+    const lines = [
+      '품번: ' + item.pn,
+      (item.nm ? '품명: ' + item.nm : ''),
+      '구분: ' + (isClean ? '세정' : '출하대기')
+    ];
+    if (isClean) {
+      const dList = getBulkCleanDates(item);
+      if (dList.length) {
+        lines.push('세정 출고(Z열): ' + dList.map(p => p[0] + ' ' + p[1] + '개').join(', '));
+      }
+    }
+    lines.push('시리얼(I열 ' + sns.length + '건): ' + (sns.join(', ') || '-'));
+    return lines.filter(Boolean).join('\n');
+  }
+  if (erpPopMode === 'outplan') {
+    const list = getOutPlanMatch(item, erpPopDateKey) || [];
+    const totalQty = list.reduce((acc, pair) => acc + (Number(pair[1]) || 0), 0);
+    const vTxt = list.map(pair => pair[0] + ' ' + Number(pair[1]).toLocaleString() + '개');
+    return [
+      '품번: ' + item.pn,
+      (item.nm ? '품명: ' + item.nm : ''),
+      (erpPopDateKey ? '일자: ' + erpPopDateKey : ''),
+      '외주 입고 계획 (총 ' + totalQty.toLocaleString() + '개): ' + (vTxt.join(', ') || '-')
+    ].filter(Boolean).join('\n');
+  }
+  if (erpPopMode === 'outwip') {
+    const list = getOutWipMatch(item);
+    if (!list) return '';
+    const totalQty = list.reduce((acc, pair) => acc + (Number(pair[1]) || 0), 0);
+    const vTxt = list.map(pair => pair[0] + ' ' + pair[1] + '개');
+    return [
+      '품번: ' + item.pn,
+      (item.nm ? '품명: ' + item.nm : ''),
+      '외주 재공 (총 ' + totalQty + '개): ' + (vTxt.join(', ') || '-')
+    ].filter(Boolean).join('\n');
+  }
+  const list = getErpMatch(item);
+  if (!list) return '';
+  return [
+    '품번: ' + item.pn,
+    (item.nm ? '품명: ' + item.nm : ''),
+    '정삭 재공 시리얼 (' + list.length + '건): ' + (list.join(', ') || '-')
+  ].filter(Boolean).join('\n');
+}
+
+function erpSerialText(item) {
+  if (erpPopMode === 'bulk-wait' || erpPopMode === 'bulk-clean') {
+    const sns = getBulkSerials(item);
+    return sns.join('\n');
+  }
+  if (erpPopMode === 'outplan') {
+    const list = getOutPlanMatch(item, erpPopDateKey) || [];
+    return list.map(pair => pair[0] + ' ' + Number(pair[1]).toLocaleString() + '개').join('\n');
+  }
+  if (erpPopMode === 'outwip') {
+    const list = getOutWipMatch(item);
+    return list ? list.map(pair => pair[0] + ': ' + pair[1] + '개').join('\n') : '';
+  }
+  const list = getErpMatch(item);
+  return list ? list.join('\n') : '';
+}
+
+async function copyToClipboard(text) {
+  try {
+    if (navigator.clipboard && window.isSecureContext) { await navigator.clipboard.writeText(text); return true; }
+  } catch (e) {}
+  try {
+    const ta = document.createElement('textarea');
+    ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+    document.body.appendChild(ta); ta.select();
+    const ok = document.execCommand('copy');
+    document.body.removeChild(ta);
+    return ok;
+  } catch (e) { return false; }
+}
+
+async function doErpCopy(text, label) {
+  if (!text) return;
+  const ok = await copyToClipboard(text);
+  const el = $('erpCopied');
+  if (el) { el.textContent = ok ? '✓ ' + label + ' 복사됨' : '복사 실패'; el.style.color = ok ? '#15803d' : '#b91c1c'; }
+}
+
+function hideErpPop() {
+  erpPopItem = null;
+  erpPopDateKey = '';
+  if (erpPopEl) erpPopEl.style.display = 'none';
+}
+
+function hideTip() {
+  activeTip = null;
+  if (tipEl) tipEl.style.display = 'none';
+}
+
+$('dashBar').addEventListener('click', e => {
+  const itemEl = e.target.closest('.dash-item[data-pn]');
+  if (!itemEl) return;
+  const pn = itemEl.dataset.pn || '';
+  const qEl = $('q');
+  if (!qEl) return;
+  qEl.value = (state.q.trim() === pn) ? '' : pn;
+  state.q = qEl.value;
+  applyFilter(true);
+});
+
+$('wrap').addEventListener('mouseover', e => {
+  const td = e.target.closest('td');
+  if (!td) return;
+  if (activeTip && activeTip.el === td) return;
+
+  if (td.classList.contains('pn')) {
+    const pn = td.dataset.pn || td.textContent;
+    activeTip = { el: td, type: 'pn', pn };
+    showPartTip(pn, e);
+    return;
+  }
+
+  if (isNumberCell(td)) {
+    const tr = td.closest('tr.is-bulk, tr.is-erp, tr.is-outwip, tr.is-outplan');
+    if (tr) {
+      const idx = Number(tr.dataset.idx);
+      const item = state.filteredRows[idx];
+      if (!item) return;
+
+      if (tr.classList.contains('is-outplan')) {
+        const dk = td.dataset.date || '';
+        activeTip = { el: td, type: 'outplan', item, dateKey: dk };
+        showOutPlanTip(item, dk, e);
+        return;
+      }
+
+      if (isTodayNumberCell(td)) {
+        if (item.bulkType) {
+          activeTip = { el: td, type: 'bulk', item };
+          showBulkTip(item, e);
+          return;
+        }
+        if (item.erp || item.outWip) {
+          activeTip = { el: td, type: 'wip', item };
+          showWipTip(item, e);
+          return;
+        }
+      }
+    }
+  }
+
+  if (activeTip && activeTip.type !== 'pn') hideTip();
+});
+
+$('wrap').addEventListener('mousemove', e => {
+  if (activeTip) positionTip(e);
+});
+
+$('wrap').addEventListener('mouseout', e => {
+  if (!activeTip) return;
+  const rel = e.relatedTarget;
+  if (rel && (activeTip.el === rel || activeTip.el.contains(rel))) return;
+  hideTip();
+});
+
+$('wrap').addEventListener('click', e => {
+  const td = e.target.closest('td');
+  if (!td || td.classList.contains('pn')) return;
+  if (!isNumberCell(td)) return;
+
+  const tr = td.closest('tr.is-bulk, tr.is-erp, tr.is-outwip, tr.is-outplan');
+  if (!tr) return;
+  const item = state.filteredRows[Number(tr.dataset.idx)];
+  if (!item) return;
+
+  if (tr.classList.contains('is-outplan')) {
+    hideTip();
+    const dk = td.dataset.date || '';
+    showOutPlanPop(item, dk, e);
+    const now = Date.now();
+    if (!state.outWipFetching && now - state.outWipAt > 20000) setTimeout(() => fetchOutWipBg(false), 0);
+    return;
+  }
+
+  if (!isTodayNumberCell(td)) return;
+
+  if (tr.classList.contains('is-bulk') && item.bulkType) {
+    hideTip();
+    showBulkPop(item, e, item.bulkType === 'clean' ? 'bulk-clean' : 'bulk-wait');
+    if (!state.bulkReady && !state.metaFetching) setTimeout(() => fetchMetaInfoBg(false, true), 0);
+    return;
+  }
+
+  if (!tr.classList.contains('is-erp') && !tr.classList.contains('is-outwip')) return;
+  hideTip();
+  const mode = item.outWip ? 'outwip' : 'wip';
+  showErpPop(item, e, mode);
+  const now = Date.now();
+  if (mode === 'outwip') { if (!state.outWipFetching && now - state.outWipAt > 20000) setTimeout(() => fetchOutWipBg(false), 0); }
+  else if (!state.erpFetching && now - state.erpAt > 20000) setTimeout(() => fetchErpBg(false), 0);
+});
+
+document.addEventListener('mousedown', e => {
+  if (erpPopEl.style.display !== 'block') return;
+  if (erpPopEl.contains(e.target) && e.target.id !== 'erpPopX') return;
+  if (e.target.closest && e.target.closest('tr.is-bulk, tr.is-erp, tr.is-outwip, tr.is-outplan') && !e.target.closest('td.pn')) return;
+  hideErpPop();
+});
+
+document.addEventListener('click', e => {
+  const id = e.target && e.target.id;
+  if (id === 'erpPopX') hideErpPop();
+  else if (id === 'erpCopy' && erpPopItem) doErpCopy(erpCopyText(erpPopItem), '내용');
+  else if (id === 'erpCopySn' && erpPopItem) {
+    if (erpPopMode === 'bulk-wait' || erpPopMode === 'bulk-clean') doErpCopy(erpSerialText(erpPopItem), '시리얼');
+    else doErpCopy(erpSerialText(erpPopItem), '수량');
+  }
+  else if (id === 'erpCopyPn' && erpPopItem) doErpCopy(String(erpPopItem.pn || ''), '품번');
+  else if (id === 'erpRetry') {
+    if (erpPopMode === 'outwip' || erpPopMode === 'outplan') {
+      state.outWipReady = false;
+      fetchOutWipBg(true);
+      if (erpPopItem) {
+        if (erpPopMode === 'outplan') showOutPlanPop(erpPopItem, erpPopDateKey, null);
+        else showErpPop(erpPopItem, null, 'outwip');
+      }
+    } else {
+      state.erpReady = false;
+      fetchErpBg(true);
+      if (erpPopItem) showErpPop(erpPopItem, null, 'wip');
+    }
+  }
+});
+
+document.addEventListener('keydown', e => { if (e.key === 'Escape') hideErpPop(); });
+
+let scrollTicking = false;
+$('wrap').addEventListener('scroll', () => {
+  if (activeTip) hideTip();
+  if (scrollTicking) return;
+  scrollTicking = true;
+  requestAnimationFrame(() => {
+    scrollTicking = false;
+    renderVirtualBody(false);
+  });
+}, { passive: true });
+
+$('q').addEventListener('input', e => {
+  state.q = e.target.value;
+  applyFilter(true);
+});
+$('legend').addEventListener('click', e => {
+  const chip = e.target.closest('.chip[data-cat]');
+  if (!chip) return;
+  const cat = chip.dataset.cat;
+  state.catFilter = state.catFilter === cat ? '' : cat;
+  applyFilter(true);
+});
+$('refresh').addEventListener('click', () => load(state.sheet, true, true, 0));
+$('today').addEventListener('click', () => goToday(false));
+window.addEventListener('resize', () => {
+  hideTip();
+  hideErpPop();
+  if (state.ctx) {
+    fixFreeze(state.ctx.freeze, true);
+    renderVirtualBody(false);
+  }
+});
+
+try {
+  const pSaved = JSON.parse(localStorage.getItem(LS_PART_KEY) || 'null');
+  if (pSaved && pSaved.map && Object.keys(pSaved.map).length) setPartInfo(pSaved, false);
+  const bSaved = JSON.parse(localStorage.getItem(LS_BULK_KEY) || 'null');
+  if (bSaved && (Number(bSaved.waitRows) > 0 || Number(bSaved.cleanRows) > 0)) setBulkInfo(bSaved, false);
+  const eSaved = JSON.parse(localStorage.getItem(LS_ERP_KEY) || 'null');
+  if (eSaved && Array.isArray(eSaved.items)) setErpInfo(eSaved, false);
+  const oSaved = JSON.parse(localStorage.getItem(LS_OUTWIP_KEY) || 'null');
+  if (oSaved && (Array.isArray(oSaved.items) || Array.isArray(oSaved.planItems))) setOutWipInfo(oSaved, false);
+} catch (e) {}
+
+(async function init() {
+  try { localStorage.removeItem(LS_KEY); } catch (e) {}   // 예전 방식 저장본 정리(용량 확보)
+  const snap = await loadSnapshot();
+  if (snap && snap.sheet === DEFAULT_SHEET) {
+    state.cache[DEFAULT_SHEET] = {
+      sheet: snap.sheet,
+      values: snap.values,
+      indexed: buildIndex(snap.values),
+      totalRows: snap.totalRows,
+      updatedAt: snap.updatedAt + ' (저장본)',
+      loading: false
+    };
+    renderTable();
+    setTimeout(() => goToday(true), 20);
+  }
+  load(DEFAULT_SHEET, false, true, 0).then(() => { if (!snap) setTimeout(() => goToday(true), 20); });
+})();
+
+const POLL_SEC = 10;
+let verLast = null, pollTimer = null;
+function setLive(ok) {
+  const el = $('live');
+  if (!el) return;
+  el.className = 'live' + (ok ? '' : ' off');
+  el.textContent = ok ? '● 실시간 ' + fmtT(new Date()) : '○ 연결 확인 중…';
+}
+async function pollVer() {
+  clearTimeout(pollTimer);
+  if (!document.hidden) {
+    const ctl = new AbortController();
+    const to = setTimeout(() => ctl.abort(), 15000);
+    try {
+      const res = await fetch(API_URL + '?action=ver&_=' + Date.now(), { signal: ctl.signal });
+      const v = await res.json();
+      if (v && v.status === 'success') {
+        setLive(true);
+        if (!verLast) {
+          verLast = { main: v.main, bulk: v.bulk, erp: v.erp, outwip: v.outwip };
+        } else {
+          if (v.main !== verLast.main && !state.busy) { verLast.main = v.main; load(state.sheet, false, true, 0); }
+          if (v.bulk !== verLast.bulk && !state.metaFetching) { verLast.bulk = v.bulk; fetchMetaInfoBg(false, true); }
+          if (v.erp !== verLast.erp && !state.erpFetching) { verLast.erp = v.erp; if (state.erpMap) fetchErpBg(false); }
+          if (v.outwip !== verLast.outwip && !state.outWipFetching) { verLast.outwip = v.outwip; if (state.outWipMap || state.outPlanMap) fetchOutWipBg(false); }
+        }
+      } else setLive(false);
+    } catch (e) { setLive(false); }
+    finally { clearTimeout(to); }
+  }
+  pollTimer = setTimeout(pollVer, POLL_SEC * 1000);
+}
+document.addEventListener('visibilitychange', () => { if (!document.hidden) pollVer(); });
+setTimeout(pollVer, 3000);
+
+const AUTO_SEC = 300;
+setInterval(() => { if (!document.hidden && !(state.cache[state.sheet] && state.cache[state.sheet].loading)) load(state.sheet, false, true, 0); }, AUTO_SEC * 1000);
+</script>
+</body>
+</html>
