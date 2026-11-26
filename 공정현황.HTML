@@ -420,9 +420,6 @@ td.n {
 .erp-pop.bulk-wait { border-top-color: #16a34a; }
 .erp-pop.bulk-clean { border-top-color: #0891b2; }
 .erp-pop.outplan-pop { border-top-color: #7c3aed; }
-.erp-pop.bulk-wait .pn-tip-code { color: #15803d; }
-.erp-pop.bulk-clean .pn-tip-code { color: #0e7490; }
-.erp-pop.outplan-pop .pn-tip-code { color: #6d28d9; }
 .erp-pop .pn-tip-code { color: #6d28d9; }
 .erp-pop .pn-tip-src { color: #6d28d9; background: #f5f3ff; border-color: #ddd6fe; }
 .erp-pop.bulk-wait .pn-tip-src { color: #15803d; background: #f0fdf4; border-color: #bbf7d0; }
@@ -569,7 +566,7 @@ const STAGE_TO_TODAY = true;
 const V_BUFFER = 8;
 
 const $ = id => document.getElementById(id);
-const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({'&':'&','<':'<','>':'>','"':'"'}[c]));
 let lastSync = null;
 const fmtT = d => d ? String(d.getHours()).padStart(2,'0') + ':' + String(d.getMinutes()).padStart(2,'0') + ':' + String(d.getSeconds()).padStart(2,'0') : '';
 
@@ -1302,7 +1299,6 @@ async function load(sheet, force, silent, retryCount, soft) {
     const req2 = fetchPage(sheet, FIRST_FETCH, PAGE_FETCH, force);
     req2.catch(function () {});
     if (force || !state.metaOnce) { state.metaOnce = true; fetchMetaInfoBg(force, state.partReady === true && !force);
-      // 저장본(옛 재공 시리얼/협력사 재공)이 남아 있으면 최신값으로 즉시 갱신
       setTimeout(() => { if (!state.erpFetching) fetchErpBg(false); if (!state.outWipFetching) fetchOutWipBg(false); }, 800);
     }
 
@@ -1675,7 +1671,10 @@ function renderVirtualBody(forceRender) {
         const s = String(val).trim();
         const zero = s !== '' && s !== '-' && isZeroStr(s);
         let disp;
-        if (zero || s === '' || s === '-') {
+        if (zero) {
+          cls += ' z';
+          disp = (cat === 'bal') ? '0' : '';
+        } else if (s === '' || s === '-') {
           cls += ' z';
           disp = '';
         } else if (s.charCodeAt(0) === 40 || s.charCodeAt(0) === 45) {
@@ -1959,7 +1958,7 @@ function showWipTip(item, e) {
           '<div class="pn-tip-extra-lbl">협력사별 외주 재공</div>' +
           '<div class="pn-tip-sn-preview">' + esc(preview) + '</div>' +
         '</div>' +
-        '<div class="pn-tip-hint">클릭하면 상세 보기 및 복사가 열립니다.</div>';
+        '<div class="pn-tip-hint">클릭하면 상세 보기가 열립니다.</div>';
     } else {
       const preview = list.length
         ? list.slice(0, 14).join(', ') + (list.length > 14 ? ' 외 ' + (list.length - 14) + '건' : '')
@@ -2007,7 +2006,7 @@ function showOutPlanTip(item, dateKey, e) {
         '<div class="pn-tip-extra-lbl">협력사별 외주 입고 계획 (' + esc(dateKey || '-') + ')</div>' +
         '<div class="pn-tip-sn-preview">' + esc(preview) + '</div>' +
       '</div>' +
-      '<div class="pn-tip-hint">클릭하면 상세 보기 및 복사가 열립니다.</div>';
+      '<div class="pn-tip-hint">클릭하면 상세 보기가 열립니다.</div>';
   } else {
     if (!state.outWipFetching) setTimeout(() => fetchOutWipBg(false), 0);
     bodyHtml = '<div class="pn-tip-empty">' + esc(srcName) + ' 정보 불러오는 중…</div>';
@@ -2065,7 +2064,7 @@ function showBulkTip(item, e) {
         '<div class="pn-tip-extra-lbl">I열 시리얼 (' + serials.length.toLocaleString() + '건)</div>' +
         '<div class="pn-tip-sn-preview">' + esc(snPreview) + '</div>' +
       '</div>' +
-      '<div class="pn-tip-hint">클릭하면 시리얼 전체 나열 및 복붙 팝업이 열립니다.</div>';
+      '<div class="pn-tip-hint">클릭하면 시리얼 전체 나열 및 복사 팝업이 열립니다.</div>';
 
     bodyHtml =
       '<div class="pn-tip-sub">' + esc(mCol) + '열=' + typeLabel + ' · T열 포함: <b>' + esc(lrLabel) + '</b></div>' +
@@ -2122,9 +2121,7 @@ function showOutPlanPop(item, dateKey, e) {
   const list = getOutPlanMatch(item, erpPopDateKey);
 
   let body = '';
-  let hasList = false;
   if (list) {
-    hasList = true;
     const totalQty = list.reduce((acc, pair) => acc + (Number(pair[1]) || 0), 0);
     const dLbl = erpPopDateKey ? (' (' + erpPopDateKey + ')') : '';
     const chips = list.length
@@ -2144,9 +2141,6 @@ function showOutPlanPop(item, dateKey, e) {
     body = '<div class="pn-tip-empty">협력사 재공 조회 중… <b id="erpSec">0</b>초</div>';
   }
 
-  const copyBar = hasList ?
-    '<div class="erp-pop-actions"><button class="erp-btn primary" id="erpCopy">복사하기</button><button class="erp-btn" id="erpCopySn">수량만 복사</button><button class="erp-btn" id="erpCopyPn">품번만 복사</button><span class="erp-copied" id="erpCopied"></span></div>' : '';
-
   erpPopEl.classList.remove('bulk-wait', 'bulk-clean');
   erpPopEl.classList.add('outplan-pop');
   erpPopEl.innerHTML =
@@ -2154,7 +2148,7 @@ function showOutPlanPop(item, dateKey, e) {
       '<span class="pn-tip-code">' + esc(pn) + (erpPopDateKey ? ' ' + esc(erpPopDateKey) : '') + '</span>' +
       '<span><span class="pn-tip-src">' + esc(info.sheetName || '협력사 재공') + '</span> <button class="erp-pop-x" id="erpPopX" title="닫기">✕</button></span>' +
     '</div>' +
-    '<div class="pn-tip-sub">' + esc(item.nm || '') + (item.gubun ? ' · ' + esc(item.gubun) : '') + '</div>' + body + copyBar;
+    '<div class="pn-tip-sub">' + esc(item.nm || '') + (item.gubun ? ' · ' + esc(item.gubun) : '') + '</div>' + body;
 
   placePopAt(erpPopPos.x, erpPopPos.y);
 }
@@ -2194,6 +2188,13 @@ function showBulkPop(item, e, mode) {
       '</div>'
     : '<div class="erp-sn-none">일치하는 I열 시리얼이 없습니다.</div>';
 
+  const copyBar = serials.length
+    ? '<div class="erp-pop-actions">' +
+        '<button class="erp-btn ' + (isClean ? 'clean-pri' : 'wait-pri') + '" id="erpCopySn">복사하기</button>' +
+        '<span class="erp-copied" id="erpCopied"></span>' +
+      '</div>'
+    : '';
+
   const body =
     '<div class="pn-tip-sub" style="margin-bottom:4px">T열 포함: <b>' + esc(lrLabel) + '</b> · KF ' + match[0].toLocaleString() + '개 / RF ' + match[1].toLocaleString() + '개</div>' +
     dateSecHtml +
@@ -2201,12 +2202,7 @@ function showBulkPop(item, e, mode) {
       '<div class="erp-sec-hd"><span>시리얼 목록 (I열)</span><b class="' + (isClean ? 'cl' : 'wt') + '">' + serials.length.toLocaleString() + '건</b></div>' +
       snChips +
     '</div>' +
-    '<div class="erp-pop-actions">' +
-      '<button class="erp-btn ' + (isClean ? 'clean-pri' : 'wait-pri') + '" id="erpCopySn">시리얼만 복사</button>' +
-      '<button class="erp-btn" id="erpCopy">전체 요약 복사</button>' +
-      '<button class="erp-btn" id="erpCopyPn">품번만 복사</button>' +
-      '<span class="erp-copied" id="erpCopied"></span>' +
-    '</div>' +
+    copyBar +
     '<div class="erp-pop-note">BULK RAW 시트 · P열=' + esc(typeLabel) + ' · I열 시리얼' + (isClean ? ' · Z열 출고일' : '') + '</div>';
 
   erpPopEl.classList.remove('bulk-wait', 'bulk-clean', 'outplan-pop');
@@ -2271,8 +2267,9 @@ function showErpPop(item, e, mode) {
 
   if (hasList && fetchingState) body += '<div class="erp-pop-note">최신 데이터 확인 중…</div>';
 
-  const copyBar = hasList ?
-    '<div class="erp-pop-actions"><button class="erp-btn primary" id="erpCopy">복사하기</button><button class="erp-btn" id="erpCopySn">' + (isOutWip ? '수량만 복사' : '시리얼만 복사') + '</button><button class="erp-btn" id="erpCopyPn">품번만 복사</button><span class="erp-copied" id="erpCopied"></span></div>' : '';
+  const copyBar = (!isOutWip && hasList && list.length)
+    ? '<div class="erp-pop-actions"><button class="erp-btn primary" id="erpCopySn">복사하기</button><span class="erp-copied" id="erpCopied"></span></div>'
+    : '';
 
   erpPopEl.classList.remove('bulk-wait', 'bulk-clean', 'outplan-pop');
   erpPopEl.innerHTML =
@@ -2287,21 +2284,8 @@ function showErpPop(item, e, mode) {
 
 function erpCopyText(item) {
   if (erpPopMode === 'bulk-wait' || erpPopMode === 'bulk-clean') {
-    const isClean = item.bulkType === 'clean';
     const sns = getBulkSerials(item);
-    const lines = [
-      '품번: ' + item.pn,
-      (item.nm ? '품명: ' + item.nm : ''),
-      '구분: ' + (isClean ? '세정' : '출하대기')
-    ];
-    if (isClean) {
-      const dList = getBulkCleanDates(item);
-      if (dList.length) {
-        lines.push('세정 출고(Z열): ' + dList.map(p => p[0] + ' ' + p[1] + '개').join(', '));
-      }
-    }
-    lines.push('시리얼(I열 ' + sns.length + '건): ' + (sns.join(', ') || '-'));
-    return lines.filter(Boolean).join('\n');
+    return sns.join('\n');
   }
   if (erpPopMode === 'outplan') {
     const list = getOutPlanMatch(item, erpPopDateKey) || [];
@@ -2327,11 +2311,7 @@ function erpCopyText(item) {
   }
   const list = getErpMatch(item);
   if (!list) return '';
-  return [
-    '품번: ' + item.pn,
-    (item.nm ? '품명: ' + item.nm : ''),
-    '정삭 재공 시리얼 (' + list.length + '건): ' + (list.join(', ') || '-')
-  ].filter(Boolean).join('\n');
+  return list.join('\n');
 }
 
 function erpSerialText(item) {
@@ -2499,7 +2479,7 @@ document.addEventListener('click', e => {
   if (id === 'erpPopX') hideErpPop();
   else if (id === 'erpCopy' && erpPopItem) doErpCopy(erpCopyText(erpPopItem), '내용');
   else if (id === 'erpCopySn' && erpPopItem) {
-    if (erpPopMode === 'bulk-wait' || erpPopMode === 'bulk-clean') doErpCopy(erpSerialText(erpPopItem), '시리얼');
+    if (erpPopMode === 'bulk-wait' || erpPopMode === 'bulk-clean' || erpPopMode === 'wip') doErpCopy(erpSerialText(erpPopItem), '시리얼');
     else doErpCopy(erpSerialText(erpPopItem), '수량');
   }
   else if (id === 'erpCopyPn' && erpPopItem) doErpCopy(String(erpPopItem.pn || ''), '품번');
@@ -2566,7 +2546,7 @@ try {
 } catch (e) {}
 
 (async function init() {
-  try { localStorage.removeItem(LS_KEY); } catch (e) {}   // 예전 방식 저장본 정리(용량 확보)
+  try { localStorage.removeItem(LS_KEY); } catch (e) {}
   const snap = await loadSnapshot();
   if (snap && snap.sheet === DEFAULT_SHEET) {
     state.cache[DEFAULT_SHEET] = {
